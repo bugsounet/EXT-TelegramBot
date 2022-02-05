@@ -22,17 +22,15 @@ cd "$Installer_dir"
 
 source utils.sh
 
-# module name
-Installer_module="TelegramBot"
-
 # use beep request questions ?
 Installer_beep=false
 
 # check version in package.json file
-Installer_version="$(cat ../package.json | grep version | cut -c14-30 2>/dev/null)"
+Installer_version="$(grep -Eo '\"version\"[^,]*' ../package.json | grep -Eo '[^:]*$' | awk  -F'\"' '{print $2}')"
+Installer_module="$(grep -Eo '\"name\"[^,]*' ../package.json | grep -Eo '[^:]*$' | awk  -F'\"' '{print $2}')"
 
 # Let's start !
-Installer_info "Welcome to $Installer_module $Installer_version"
+Installer_info "Welcome to $Installer_module v$Installer_version"
 
 echo
 
@@ -52,9 +50,11 @@ if  [ "$platform" == "osx" ]; then
 else
   Installer_success "OS Detected: $OSTYPE ($os_name $os_version $arch)"
   dependencies=(scrot)
-  Installer_info "Checking all dependencies..."
-  Installer_check_dependencies
-  Installer_success "All Dependencies needed are installed !"
+  [ "${__NO_DEP_CHECK__}" ] || {
+    Installer_info "Checking all dependencies..."
+    Installer_check_dependencies
+    Installer_success "All Dependencies needed are installed !"
+  }
 fi
 
 echo
