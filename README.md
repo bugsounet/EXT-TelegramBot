@@ -8,9 +8,9 @@ Coded by @eouia and @bugsounet
 
 # Screenshot
 
-![](https://raw.githubusercontent.com/bugsounet/EXT-TelegramBot/master/sc_fullsize.png)
+![](https://raw.githubusercontent.com/bugsounet/EXT-TelegramBot/dev/screenshot/sc_fullsize.png)
 
-![](https://raw.githubusercontent.com/bugsounet/EXT-TelegramBot/master/sc_overflowed.png)
+![](https://raw.githubusercontent.com/bugsounet/EXT-TelegramBot/dev/screenshot/sc_overflowed.png)
 
 # Guide, installation, updating
 
