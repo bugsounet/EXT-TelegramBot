@@ -1,8 +1,8 @@
 {
-  "name": "MMM-TelegramBot",
-  "version": "1.4.4",
+  "name": "EXT-TelegramBot",
+  "version": "1.0.0",
   "description": "TelegramBot module for remote-controlling MagicMirror.",
-  "main": "MMM-TelegramBot.js",
+  "main": "EXT-TelegramBot.js",
   "scripts": {
     "preinstall": "installer/preinstall.sh",
     "postinstall": "installer/postinstall.sh"
@@ -18,15 +18,14 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bugsounet/MMM-TelegramBot/issues"
+    "url": "https://forum.bugsounet.fr"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bugsounet/MMM-TelegramBot"
+    "url": "https://github.com/bugsounet/EXT-TelegramBot"
   },
-  "homepage": "https://github.com/bugsounet/MMM-TelegramBot",
+  "homepage": "https://github.com/bugsounet/EXT-TelegramBot",
   "dependencies": {
-    "moment": "^2.18.1",
-    "node-telegram-bot-api": "0.28.0"
+    "node-telegram-bot-api": "^0.61.0"
   }
 }
