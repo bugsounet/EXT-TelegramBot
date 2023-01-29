@@ -37,7 +37,7 @@ module.exports = NodeHelper.create({
     this.config = config
     this.TBService = this.config.TelegramBotServiceAlerte
     if (this.config.verbose) log = _log
-    console.log("[TELBOT] MMM-TelegramBot Version:",  require('./package.json').version)
+    console.log("[TELBOT] EXT-TelegramBot Version:",  require('./package.json').version)
     if (typeof config.adminChatId !== 'undefined') {
       this.adminChatId = this.config.adminChatId
     }

@@ -8,16 +8,16 @@ Coded by @eouia and @bugsounet
 
 # Screenshot
 
-![](https://raw.githubusercontent.com/bugsounet/MMM-TelegramBot/master/sc_fullsize.png)
+![](https://raw.githubusercontent.com/bugsounet/EXT-TelegramBot/master/sc_fullsize.png)
 
-![](https://raw.githubusercontent.com/bugsounet/MMM-TelegramBot/master/sc_overflowed.png)
+![](https://raw.githubusercontent.com/bugsounet/EXT-TelegramBot/master/sc_overflowed.png)
 
 # Guide, installation, updating
 
-See the [Wiki](http://wiki.bugsounet.fr/en/MMM-TelegramBot)
+See the [Wiki](http://wiki.bugsounet.fr/en/EXT-TelegramBot)
 
 ## Support and Helping
-Support is now on [the 4th Party Modules Forum](http://forum.bugsounet.fr)
+Support is now on [the 4th Party Modules Forum](https://forum.bugsounet.fr)
 
 ## Donate
  [Donate](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TTHRH94Y4KL36&source=url), if you love this module !

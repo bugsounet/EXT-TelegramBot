@@ -1,6 +1,6 @@
 'use strict'
 /* Magic Mirror
- * Module: MMM-TelegramBot
+ * Module: EXT-TelegramBot
  *
  * By eouia & @bugsounet
  */
@@ -17,7 +17,7 @@
    }
  }
 
-Module.register("MMM-TelegramBot", {
+Module.register("EXT-TelegramBot", {
   defaults: {
     allowedUser: [],
     commandAllowed: { // If set, only specific user can use these commands, other even in allowedUser cannot. These members should be allowed by allowedUser first.
@@ -39,7 +39,6 @@ Module.register("MMM-TelegramBot", {
     }
     */
     favourites:["/commands", "/modules", "/hideall", "/showall"],
-    customCommands:[],
     telecast: null, // true or chat_id
     telecastLife: 1000 * 60 * 60 * 6,
     telecastLimit: 5,
@@ -90,11 +89,11 @@ Module.register("MMM-TelegramBot", {
   },
 
   getStyles: function() {
-    return ["MMM-TelegramBot.css"]
+    return ["EXT-TelegramBot.css"]
   },
 
   getScripts: function() {
-    return ["TELBOT_lib.js", "configMerge.min.js"]
+    return ["/modules/EXT-TelegramBot/lib/TELBOT_lib.js"]
   },
 
   registerCommand: function(module, commandObj) {
@@ -252,9 +251,6 @@ Module.register("MMM-TelegramBot", {
       },
     ]
     defaultCommands.forEach((c) => {
-      Register.add(c)
-    })
-    this.config.customCommands.forEach((c)=>{
       Register.add(c)
     })
   },
@@ -744,7 +740,7 @@ Module.register("MMM-TelegramBot", {
 
   telecast: function(msgObj) {
     if (!msgObj.text && !msgObj.photo && !msgObj.sticker && !msgObj.animation && !msgObj.audio && !msgObj.voice) return
-    if (this.config.useSoundNotification) this.sound.src = "modules/MMM-TelegramBot/msg_incoming.mp3"
+    if (this.config.useSoundNotification) this.sound.src = "modules/EXT-TelegramBot/resources/msg_incoming.mp3"
     while (this.chats.length >= this.config.telecastLimit) {
       this.chats.shift()
     }
@@ -778,7 +774,7 @@ Module.register("MMM-TelegramBot", {
 
   appendTelecastChat: function(parent, c) {
     const getImageURL = (id)=>{
-      return "/modules/MMM-TelegramBot/cache/" + id
+      return "/modules/EXT-TelegramBot/cache/" + id
     }
     var anchor = parent.querySelector("#TELBOT_ANCHOR")
     var chat = document.createElement("div")
@@ -935,6 +931,9 @@ Module.register("MMM-TelegramBot", {
 
   notificationReceived: function (notification, payload, sender) {
     switch(notification) {
+      case "GAv4_READY":
+        if (sender.name == "MMM-GoogleAssistant") this.sendNotification("EXT_HELLO", this.name))
+        break
       case 'ALL_MODULES_STARTED':
         if (this.isAlreadyInitialized) {
           return
@@ -943,7 +942,7 @@ Module.register("MMM-TelegramBot", {
         this.sendSocketNotification('ALLOWEDUSER', [...this.allowed])
         var commands = []
         MM.getModules().enumerate((m) => {
-          if (m.name !== 'MMM-TelegramBot') {
+          if (m.name !== 'EXT-TelegramBot') {
             if (typeof m.getCommands == 'function') {
               var tc = m.getCommands(new TelegramBotCommandRegister(
                 m,
