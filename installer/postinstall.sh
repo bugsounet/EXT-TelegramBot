@@ -22,12 +22,18 @@ cd "$Installer_dir"
 
 source utils.sh
 
+Installer_info "Minify Main code..."
+node minify.js
+Installer_success "Done"
+echo
 # module name
-Installer_module="TelegramBot"
+Installer_module="EXT-TelegramBot"
 
 Installer_info "Install Emojis..."
 mkdir ~/.fonts &>/dev/null
 cp -f *.ttf ~/.fonts/
 fc-cache -f -v &>/dev/null
+Installer_success "Done"
+echo
 
 Installer_info "$Installer_module is now installed !"
