@@ -22,6 +22,10 @@ cd "$Installer_dir"
 
 source utils.sh
 
+Installer_info "Minify Main code..."
+node minify.js
+Installer_success "Done"
+
 # module name
 Installer_module="TelegramBot"
 
