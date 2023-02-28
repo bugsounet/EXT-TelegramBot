@@ -1,151 +1,25 @@
 'use strict'
 
-const moment = require('moment')
-const TelegramBot = require('node-telegram-bot-api')
-const fs = require('fs')
-const exec = require('child_process').exec
-const path = require('path')
-const https = require('https')
-
-const startTime = moment()
-
-var _log = function() {
-    var context = "[TELBOT]"
-    return Function.prototype.bind.call(console.log, console, context)
-}()
-
-var log = function() {
-  //do nothing
-}
-
+var log = (...args) => { /* do nothing */ }
+var parseData = require("./components/parseData.js")
 var NodeHelper = require("node_helper");
 
 module.exports = NodeHelper.create({
   start: function () {
-    this.config = {}
-    this.commands = []
-    this.callsigns = []
-    this.adminChatId = undefined
-    this.askSession = new Set()
-    this.allowed = new Set()
-    this.TB = null
-    this.counterInstance = 0
-    this.TBService = true
+    parseData.init(this)
   },
 
   initialize: function(config) {
     this.config = config
-    this.TBService = this.config.TelegramBotServiceAlerte
-    if (this.config.verbose) log = _log
+    if (this.config.verbose || this.config.debug) log = (...args) => { console.log("[TELBOT]", ...args) }
     console.log("[TELBOT] EXT-TelegramBot Version:",  require('./package.json').version, "rev:", require('./package.json').rev)
-    if (typeof config.adminChatId !== 'undefined') {
-      this.adminChatId = this.config.adminChatId
-    }
-    if (typeof config.telegramAPIKey !== 'undefined') {
-      try {
-        var option = Object.assign({polling:true}, config.detailOption)
-        this.TB = new TelegramBot(config.telegramAPIKey, option)
-        var me = this.TB.getMe()
-      } catch (err) {
-        return console.log("[TELBOT]", err)
-      }
 
-      /** Catch any errors TelegramBot Service
-       *  303 SEE_OTHER
-       *  400 BAD_REQUEST
-       *  401 UNAUTHORIZED
-       *  403 FORBIDDEN
-       *  404 NOT_FOUND
-       *  406 NOT_ACCEPTABLE
-       *  409 MULTI_INSTANCE
-       *  420 FLOOD
-       *  500 INTERNAL
-       *  and others
-      **/
-      this.TB.on('polling_error', (error) => {
-        if (!error.response) {
-          error = {
-            response: {
-              body: {
-                error_code: "EFATAL",
-                description: "No internet ?"
-              }
-            }
-          }
-        }
-        console.log("[TELBOT] Error " + error.response.body.error_code, error.response.body.description)
-        var msg = {
-          type: 'TEXT',
-          text: null,
-          option: {
-            disable_notification: false,
-            parse_mode: 'Markdown'
-          }
-        }
-        switch (error.response.body.error_code) {
-          case 409:
-            if (this.counterInstance >= 3) {
-              if (this.TBService) {
-                msg.text = "*[WARNING] This instance of TelegramBot is now stopped!*"
-                msg.text += "\n\n" + this.config.text["TELBOT_HELPER_SERVED"]
-                this.say(msg, true)
-              } else {
-                console.log("[TELBOT] stopPolling...")
-              }
-              this.TB.stopPolling()
-            } else {
-              this.counterInstance += 1
-              if (this.TBService) {
-                msg.text = "*[WARNING] Make sure that only one TelegramBot instance is running!*",
-                msg.text += "\n\n" + this.config.text["TELBOT_HELPER_SERVED"]
-                this.say(msg, true)
-              }
-            }
-            break
-          case "EFATAL":
-          case 401:
-          case 420:
-            console.log("[TELBOT] stopPolling and waiting 1 min before retry...")
-            this.TB.stopPolling()
-            setTimeout(() => {
-              this.TB.startPolling()
-              console.log("[TELBOT] startPolling...")
-              if (this.TBService) {
-                msg.text = "*" + this.config.text["TELBOT_HELPER_WAKEUP"] + "*\n"
-                msg.text += "Error: "+ error.response.body.error_code + "\n"
-                msg.text += "Description: " + error.response.body.description
-                msg.text += "\n\n" + this.config.text["TELBOT_HELPER_SERVED"]
-                this.say(msg, true)
-              }
-            } , 1000 * 60)
-            break
-          default:
-            if (this.TBService) {
-              msg.text = "*[WARNING] An error has occurred!*\n"
-              msg.text += "Error: "+ error.response.body.error_code + "\n"
-              msg.text += "Description: " + error.response.body.description
-              msg.text += "\n\n" + this.config.text["TELBOT_HELPER_SERVED"]
-              this.say(msg, true)
-            }
-            break
-        }
-      })
-      /** end of TelegramBot Service **/
-      if (this.adminChatId && this.config.useWelcomeMessage) {
-        this.say(this.welcomeMsg())
-      }
-      console.log("[TELBOT] Ready!")
-      this.TB.on('message', (msg) =>{
-        this.processMessage(msg)
-      })
-    } else {
-      console.log("[TELBOT] Configuration fails.")
-    }
+    parseData.parse(this)
   },
 
   processMessage: function(msg) {
-    var time = moment.unix(msg.date)
-    if (startTime.isAfter(time)) return //do nothing
+    var time = this.lib.moment.unix(msg.date)
+    if (this.startTime.isAfter(time)) return //do nothing
     var commandLike = (msg.text) ? msg.text : ((msg.caption) ? msg.caption : "")
     if (commandLike.indexOf("/") === 0) {
       //commandLike
@@ -183,7 +57,7 @@ module.exports = NodeHelper.create({
             this.askSession.delete(s)
             return
           }
-          if (moment.unix(s.time).isBefore(moment().add(-1, 'hours'))) {
+          if (this.lib.moment.unix(s.time).isBefore(this.lib.moment().add(-1, 'hours'))) {
             this.askSession.delete(s)
           }
         })
@@ -207,19 +81,19 @@ module.exports = NodeHelper.create({
   cookMsg: async function (msg, callback=(retmsg)=>{}) {
     var fromUserId = msg.from.id
     const clearCache = (life)=>{
-      return new Promise ((resolve)=>{
+      return new Promise (resolve=>{
         try {
           log("Clearing old cache data")
-          var cacheDir = path.resolve(__dirname, "cache")
-          var files = fs.readdirSync(cacheDir)
+          var cacheDir = this.lib.path.resolve(__dirname, "cache")
+          var files = this.lib.fs.readdirSync(cacheDir)
           for (var f of files) {
-            var p = path.join(cacheDir, f)
-            var stat = fs.statSync(p)
+            var p = this.lib.path.join(cacheDir, f)
+            var stat = this.lib.fs.statSync(p)
             var now = new Date().getTime()
             var endTime = new Date(stat.ctime).getTime() + life
             if (now > endTime) {
               log("Unlink old cache file:", p)
-              fs.unlinkSync(p)
+              this.lib.fs.unlinkSync(p)
             }
           }
           resolve(true)
@@ -230,12 +104,12 @@ module.exports = NodeHelper.create({
     }
     const downloadFile = (url, filepath)=>{
       return new Promise((resolve)=>{
-        var f = fs.createWriteStream(filepath)
+        var f = this.lib.fs.createWriteStream(filepath)
         f.on('finish', () => {
           f.close()
           resolve(filepath)
         })
-        const request = https.get(url, (response) => {
+        const request = this.lib.https.get(url, (response) => {
           response.pipe(f)
         })
       })
@@ -243,8 +117,8 @@ module.exports = NodeHelper.create({
     const processProfilePhoto = async ()=>{
       var upp = await this.TB.getUserProfilePhotos(fromUserId, {offset:0, limit:1})
       if (!(upp && upp.total_count)) return null
-      var file = path.resolve(__dirname, "cache", String(fromUserId))
-      if (fs.existsSync(file)) return fromUserId
+      var file = this.lib.path.resolve(__dirname, "cache", String(fromUserId))
+      if (this.lib.fs.existsSync(file)) return fromUserId
       var photo = upp.photos[0][0]
       var link = await this.TB.getFileLink(photo.file_id)
       await downloadFile(link, file)
@@ -256,7 +130,7 @@ module.exports = NodeHelper.create({
       })
       var fileId = bigger.file_id
       var link = await this.TB.getFileLink(fileId)
-      var file = path.resolve(__dirname, "cache", String(bigger.file_unique_id))
+      var file = this.lib.path.resolve(__dirname, "cache", String(bigger.file_unique_id))
       await downloadFile(link, file)
       return bigger.file_unique_id
     }
@@ -264,7 +138,7 @@ module.exports = NodeHelper.create({
     const processChatSticker = async (sticker) => {
       var fileId = sticker.thumb.file_id
       var link = await this.TB.getFileLink(fileId)
-      var file = path.resolve(__dirname, "cache", String(sticker.thumb.file_unique_id))
+      var file = this.lib.path.resolve(__dirname, "cache", String(sticker.thumb.file_unique_id))
       await downloadFile(link, file)
       return sticker.thumb.file_unique_id
     }
@@ -272,7 +146,7 @@ module.exports = NodeHelper.create({
     const processChatAnimated = async (animation) => {
       var fileId = animation.file_id
       var link = await this.TB.getFileLink(fileId)
-      var file = path.resolve(__dirname, "cache", String(animation.file_unique_id))
+      var file = this.lib.path.resolve(__dirname, "cache", String(animation.file_unique_id))
       await downloadFile(link, file)
       return animation.file_unique_id
     }
@@ -280,7 +154,7 @@ module.exports = NodeHelper.create({
     const processChatAudio = async (audio) => {
       var fileId = audio.file_id
       var link = await this.TB.getFileLink(fileId)
-      var file = path.resolve(__dirname, "cache", String(audio.file_unique_id))
+      var file = this.lib.path.resolve(__dirname, "cache", String(audio.file_unique_id))
       await downloadFile(link, file)
       return audio.file_unique_id
     }
@@ -313,7 +187,7 @@ module.exports = NodeHelper.create({
   tooOldMsg: function(origMsg) {
     var text = origMsg.text
       + this.config.text["TELBOT_HELPER_TOOOLDMSG"]
-      + moment.unix(origMsg.date).format(this.config.dateFormat)
+      + this.lib.moment.unix(origMsg.date).format(this.config.dateFormat)
     var msg = {
       type: 'TEXT',
       chat_id: origMsg.chat.id,
@@ -329,7 +203,7 @@ module.exports = NodeHelper.create({
   welcomeMsg: function() {
     var text = "*" + this.config.text["TELBOT_HELPER_WAKEUP"] + "*\n"
       + this.config.text["TELBOT_HELPER_RESTART"]
-      + "\n`" + startTime.format(this.config.dateFormat) + "`\n"
+      + "\n`" + this.startTime.format(this.config.dateFormat) + "`\n"
     var msg = {
       type: 'TEXT',
       chat_id: this.adminChatId,
@@ -347,35 +221,35 @@ module.exports = NodeHelper.create({
     if (!this.TB.isPolling() || !chatId) return
     switch(r.type) {
       case 'VOICE_PATH':
-        var data = fs.readFileSync(r.path);
+        var data = this.lib.fs.readFileSync(r.path);
         this.TB.sendVoice(chatId, data, r.option).catch((e) => {this.onError(e, r)})
         break;
       case 'VOICE_URL':
         this.TB.sendVoice(chatId, r.path, r.option).catch((e) => {this.onError(e, r)})
         break;
       case 'VIDEO_PATH':
-        var data = fs.readFileSync(r.path);
+        var data = this.lib.fs.readFileSync(r.path);
         this.TB.sendVideo(chatId, data, r.option).catch((e) => {this.onError(e, r)})
         break;
       case 'VIDEO_URL':
         this.TB.sendVideo(chatId, r.path, r.option).catch((e) => {this.onError(e, r)})
         break;
       case 'DOCUMENT_PATH':
-        var data = fs.readFileSync(r.path);
+        var data = this.lib.fs.readFileSync(r.path);
         this.TB.sendDocument(chatId, data, r.option).catch((e) => {this.onError(e, r)})
         break;
       case 'DOCUMENT_URL':
         this.TB.sendDocument(chatId, r.path, r.option).catch((e) => {this.onError(e, r)})
         break;
       case 'PHOTO_PATH':
-        var data = fs.readFileSync(r.path);
+        var data = this.lib.fs.readFileSync(r.path);
         this.TB.sendPhoto(chatId, data, r.option).catch((e) => {this.onError(e, r)})
         break;
       case 'PHOTO_URL':
         this.TB.sendPhoto(chatId, r.path, r.option).catch((e) => {this.onError(e, r)})
         break;
       case 'AUDIO_PATH':
-        var data = fs.readFileSync(r.path);
+        var data = this.lib.fs.readFileSync(r.path);
         this.TB.sendAudio(chatId, data, r.option).catch((e) => {this.onError(e, r)})
         break;
       case 'AUDIO_URL':
@@ -408,7 +282,7 @@ module.exports = NodeHelper.create({
             this.askSession.add({
               sessionId:sessionId,
               messageId:ret.message_id,
-              time:moment().format('X')
+              time:this.lib.moment().format('X')
             })
           })
           .catch((e) => {this.onError(e, r)})
@@ -436,24 +310,18 @@ module.exports = NodeHelper.create({
         if (this.TB) this.ask(payload)
         break;
       case 'ALLOWEDUSER':
-        if (this.TB) {
+        //if (this.TB) {
           this.allowed = new Set(payload)
-        }
+        //}
         break;
       case 'REBOOT':
         if (this.TB) this.shell('sudo reboot')
         break;
       case 'SHUTDOWN':
         if (this.TB) this.shell('sudo shutdown now')
-        break;
-      case 'PM2': //? used????
-        if (this.TB) this.shell('pm2 ' + payload)
-        break;
-      case 'SHELL':
-        if (this.TB) this.shell(payload.exec, payload.session)
         break
       case 'SCREENSHOT':
-        if (this.TB) this.screenshot(payload.session)
+        if (this.TB) this.lib.screenshot.scrot(this,payload.session)
         break
       case 'FORCE_TELECAST':
         if (this.TB) this.processTelecast(payload)
@@ -490,59 +358,12 @@ module.exports = NodeHelper.create({
     }
   },
 
-  shell: function(command, sessionId=null, callback=null){
-    if (callback == null) {
-      callback = (ret, session) => {
-        if (ret.length > 3000) {
-          ret = ret.slice(0, 3000) + " ..."
-        }
-        this.sendSocketNotification("SHELL_RESULT", {
-          session: session,
-          result: ret
-        })
-      }
-    }
+  shell: function(command) {
     log("SHELL:", command)
-    exec(command, function(error, stdout, stderr){
+    this.lib.child_process.exec(command, (error, stdout, stderr) => {
       var result = stdout
-      if (error) { result = error.message}
+      if (error) { result = error.message }
       log("SHELL RESULT:", result)
-      callback(result, sessionId)
-    })
-  },
-
-  screenshot: function(sessionId = null, callback=null) {
-    var shotDir = path.resolve(__dirname, "screenshot")
-    var command = "scrot -o " + shotDir + "/screenshot.png"
-    var t = new moment()
-    var retObj = {
-      session: sessionId,
-      timestamp: t.format(this.config.dateFormat),
-      path: shotDir + "/screenshot.png",
-      result: "",
-      status: false
-    }
-    if (callback == null) {
-      callback = (ret, session) => {
-        if (ret.length > 3000) {
-          ret = ret.slice(0, 3000) + " ..."
-        }
-        retObj.ret = ret
-        this.sendSocketNotification("SCREENSHOT_RESULT", retObj)
-      }
-    }
-    log("SCREENSHOT:", command)
-    exec(command, function(error, stdout, stderr){
-      var result = stdout
-      if (error) {
-        retObj.result = error.message
-        result = error.message
-      } else {
-        retObj.status = true
-      }
-      log("SCREENSHOT RESULT:", result)
-      callback(result, sessionId)
     })
   }
-
 })

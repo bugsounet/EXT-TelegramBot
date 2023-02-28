@@ -19,6 +19,7 @@
 
 Module.register("EXT-TelegramBot", {
   defaults: {
+    debug: false,
     allowedUser: [],
     commandAllowed: { // If set, only specific user can use these commands, other even in allowedUser cannot. These members should be allowed by allowedUser first.
       //"telecast": ["eouia", "someone"],
@@ -93,7 +94,7 @@ Module.register("EXT-TelegramBot", {
   },
 
   getScripts: function() {
-    return ["/modules/EXT-TelegramBot/lib/TELBOT_lib.js"]
+    return ["/modules/EXT-TelegramBot/components/TELBOT_lib.js"]
   },
 
   registerCommand: function(module, commandObj) {
@@ -224,11 +225,6 @@ Module.register("EXT-TelegramBot", {
         description : this.translate("TELBOT_RESET_KEYBOARD"),
       },
       {
-        command: 'shell',
-        callback: 'TELBOT_shell',
-        description: this.translate("TELBOT_SHELL"),
-      },
-      {
         command: 'notification',
         callback: 'TELBOT_noti',
         description: this.translate("TELBOT_NOTIFICATION"),
@@ -319,30 +315,6 @@ Module.register("EXT-TelegramBot", {
     }
     this.sendNotification(noti, payload)
     handler.reply("TEXT", this.translate("TELBOT_NOTIFICATION_RESULT"), {parse_mode:"Markdown"})
-  },
-
-  TELBOT_shell: function (command, handler) {
-    var exec = handler.args
-    var sessionId = Date.now() + "_" + this.commonSession.size
-    if (exec) {
-      this.commonSession.set(sessionId, handler)
-      this.sendSocketNotification("SHELL", {
-        session: sessionId,
-        exec: exec
-      })
-    }
-  },
-
-  TELBOT_shell_result: function(sessionId, ret) {
-    var handler = this.commonSession.get(sessionId)
-    var text = ""
-    if (handler) {
-      this.commonSession.delete(sessionId)
-      text = this.translate("TELBOT_SHELL_RESULT") + ret
-    } else {
-      text = this.translate("TELBOT_SHELL_RESULT_SESSION_ERROR")
-    }
-    handler.reply("TEXT", text, {parse_mode:"Markdown"})
   },
 
   TELBOT_favor: function (command, handler) {
@@ -898,9 +870,6 @@ Module.register("EXT-TelegramBot", {
       case 'COMMAND':
         this.parseCommand(payload)
         break
-      case 'SHELL_RESULT':
-        this.TELBOT_shell_result(payload.session, payload.result)
-        break
       case 'SCREENSHOT_RESULT':
         this.TELBOT_screenshot_result(payload.session, payload)
         break
@@ -944,10 +913,7 @@ Module.register("EXT-TelegramBot", {
         MM.getModules().enumerate((m) => {
           if (m.name !== 'EXT-TelegramBot') {
             if (typeof m.getCommands == 'function') {
-              var tc = m.getCommands(new TelegramBotCommandRegister(
-                m,
-                this.registerCommand.bind(this)
-              ))
+              var tc = m.getCommands(new TelegramBotCommandRegister(m,this.registerCommand.bind(this)))
               if (Array.isArray(tc)) {
                 tc.forEach((c)=>{
                   this.registerCommand(m, c)
@@ -976,5 +942,5 @@ Module.register("EXT-TelegramBot", {
         }
         break
     }
-  },
+  }
 })
