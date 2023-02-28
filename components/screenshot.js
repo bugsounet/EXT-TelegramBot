@@ -2,9 +2,10 @@
 var log = (...args) => { /* do nothing */ }
 
 function scrot(that, sessionId = null, callback=null) {
-  var shotDir = path.resolve(__dirname, "screenshot")
+  if (that.config.debug) log = (...args) => { console.log("[TELBOT] [SCREENSHOT]", ...args) }
+  var shotDir = that.lib.path.resolve(__dirname, "screenshot")
   var command = "scrot -o " + shotDir + "/screenshot.png"
-  var t = new moment()
+  var t = new that.lib.moment()
   var retObj = {
     session: sessionId,
     timestamp: t.format(that.config.dateFormat),
@@ -22,7 +23,7 @@ function scrot(that, sessionId = null, callback=null) {
     }
   }
   log("SCREENSHOT:", command)
-  exec(command, function(error, stdout, stderr){
+  that.lib.child_process.exec(command, function(error, stdout, stderr){
     var result = stdout
     if (error) {
       retObj.result = error.message

@@ -17,7 +17,7 @@ async function init(that) {
 async function parse(that,data) {
   let bugsounet = await _load.libraries(that)
   if (bugsounet) {
-    console.error("[TELBOT] Warning:", bugsounet, "needed library not loaded !")
+    console.error("[TELBOT] [DATA] Warning:", bugsounet, "needed library not loaded !")
     return
   }
   that.startTime = that.lib.moment()
@@ -33,17 +33,17 @@ async function parse(that,data) {
       that.TB = new that.lib.TelegramBot(that.config.telegramAPIKey, option)
       var me = that.TB.getMe()
     } catch (err) {
-      return console.log("[TELBOT]", err)
+      return console.log("[TELBOT] [DATA]", err)
     }
 
     that.lib.TBService.TBPooling(that)
-    console.log("[TELBOT] Ready!")
+    console.log("[TELBOT] [DATA] Ready!")
 
     if (that.adminChatId && that.config.useWelcomeMessage) {
-      that.say(that.welcomeMsg())
+      that.lib.Messager.say(that, that.lib.Messager.welcomeMsg(that))
     }
   } else { // inform with EXT-Alert
-    console.log("[TELBOT] Configuration fails.")
+    console.error("[TELBOT] [DATA] Configuration fails.")
   }
 }
 

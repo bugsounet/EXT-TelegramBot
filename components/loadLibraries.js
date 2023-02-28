@@ -12,7 +12,8 @@ function libraries(that) {
     { "path": "path" },
     { "https": "https" },
     { "../components/screenshot": "screenshot" },
-    { "../components/TBService": "TBService" }
+    { "../components/TBService": "TBService" },
+    { "../components/ProcessTBMessager": "Messager" }
   ]
   let errors = 0
   return new Promise(resolve => {

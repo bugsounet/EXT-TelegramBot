@@ -29,7 +29,6 @@ Module.register("EXT-TelegramBot", {
     useWelcomeMessage: true,
     useSoundNotification: true,
     TelegramBotServiceAlerte: true,
-    verbose:false,
     detailOption: {},
     //if you want this module to work behind local proxy, try this. (experimental)
     /*
