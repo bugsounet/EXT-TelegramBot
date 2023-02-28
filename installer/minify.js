@@ -4,7 +4,11 @@ const fs = require('fs')
 const files= [
  "../node_helper.js",
  "../EXT-TelegramBot.js",
- "../lib/TELBOT_lib.js"
+ "../components/TELBOT_lib.js",
+ "../components/loadLibraries.js",
+ "../components/parseData.js",
+ "../components/screenshot.js",
+ "../components/TBService.js"
 ]
 
 // import minify
