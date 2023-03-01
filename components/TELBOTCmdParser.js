@@ -147,4 +147,8 @@ class TELBOTCmdsParser {
     if (adminMode) this.sendSocketNotification('SAY_ADMIN', response)
     else this.sendSocketNotification('SAY', response)
   }
+
+  adminSay (that, response) {
+    that.sendSocketNotification('SAY_ADMIN', response)
+  }
 }

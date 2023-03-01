@@ -181,10 +181,10 @@ Module.register("EXT-TelegramBot", {
             text : payload,
             option : {parse_mode:'Markdown'}
           }
-          this.TELBOTCmdsParser.say(r, true)
+          this.TELBOTCmdsParser.adminSay(this, r)
         } else if (typeof payload == "object") {
           var r = Object.assign({}, payload, {chat_id:null})
-          this.TELBOTCmdsParser.say(r, true)
+          this.TELBOTCmdsParser.adminSay(this, r)
         }
         break
     }
