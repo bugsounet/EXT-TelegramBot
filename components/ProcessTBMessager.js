@@ -11,7 +11,7 @@ function processMessage (that,msg) {
     //commandLike
     if (!that.allowed.has(msg.from.username)) {
       const notAllowedMsg = (messageid, chatid) => {
-        var text = that.config.text["TELBOT_HELPER_NOT_ALLOWED"]
+        var text = that.config.text["EXT-TELBOT_HELPER_NOT_ALLOWED"]
         var msg = {
           type: 'TEXT',
           chat_id: chatid,
@@ -219,9 +219,28 @@ function say(that, r, adminMode=false) {
   }
 }
 
+function ask(that, r, adminMode=false) {
+  var chatId = (adminMode) ? that.adminChatId : r.chat_id
+  var sessionId = r.askSession.session_id
+
+  switch(r.type) {
+    case 'TEXT':
+      that.TB.sendMessage(chatId, r.text, r.option)
+        .then((ret)=> {
+          that.askSession.add({
+            sessionId: sessionId,
+            messageId: ret.message_id,
+            time: that.lib.moment().format('X')
+          })
+        })
+        .catch((e) => {this.onError(that, e, r)})
+      break
+  }
+}
+
 function welcomeMsg(that) {
-  var text = "*" + that.config.text["TELBOT_HELPER_WAKEUP"] + "*\n"
-    + that.config.text["TELBOT_HELPER_RESTART"]
+  var text = "*" + that.config.text["EXT-TELBOT_HELPER_WAKEUP"] + "*\n"
+    + that.config.text["EXT-TELBOT_HELPER_RESTART"]
     + "\n`" + that.startTime.format(that.config.dateFormat) + "`\n"
   var msg = {
     type: 'TEXT',
@@ -282,9 +301,8 @@ function processTelecast (that,msg) {
 exports.processMessage = processMessage
 exports.cookMsg = cookMsg
 exports.say = say
+exports.ask = ask
 exports.welcomeMsg = welcomeMsg
 exports.onError = onError
 exports.shell = shell
 exports.processTelecast = processTelecast
-
-

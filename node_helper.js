@@ -29,7 +29,7 @@ module.exports = NodeHelper.create({
         if (this.TB) this.lib.Messager.say(this,payload, true)
         break
       case 'ASK':
-        if (this.TB) this.lib.Messager.say(this,payload)
+        if (this.TB) this.lib.Messager.ask(this,payload)
         break
       case 'ALLOWEDUSER':
         this.allowed = new Set(payload)

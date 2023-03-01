@@ -40,7 +40,7 @@ function TBPooling (that) {
         if (that.counterInstance >= 3) {
           if (that.TBService) {
             msg.text = "*[WARNING] This instance of TelegramBot is now stopped!*"
-            msg.text += "\n\n" + that.config.text["TELBOT_HELPER_SERVED"]
+            msg.text += "\n\n" + that.config.text["EXT-TELBOT_HELPER_SERVED"]
             that.lib.Messager.say(that, msg, true)
           } else {
             console.log("[TELBOT] [SERVICE] stopPolling...")
@@ -50,7 +50,7 @@ function TBPooling (that) {
           that.counterInstance += 1
           if (that.TBService) {
             msg.text = "*[WARNING] Make sure that only one TelegramBot instance is running!*",
-            msg.text += "\n\n" + that.config.text["TELBOT_HELPER_SERVED"]
+            msg.text += "\n\n" + that.config.text["EXT-TELBOT_HELPER_SERVED"]
             that.lib.Messager.say(that, msg, true)
           }
         }
@@ -64,10 +64,10 @@ function TBPooling (that) {
           that.TB.startPolling()
           console.log("[TELBOT] [SERVICE] startPolling...")
           if (that.TBService) {
-            msg.text = "*" + that.config.text["TELBOT_HELPER_WAKEUP"] + "*\n"
+            msg.text = "*" + that.config.text["EXT-TELBOT_HELPER_WAKEUP"] + "*\n"
             msg.text += "Error: "+ error.response.body.error_code + "\n"
             msg.text += "Description: " + error.response.body.description
-            msg.text += "\n\n" + that.config.text["TELBOT_HELPER_SERVED"]
+            msg.text += "\n\n" + that.config.text["EXT-TELBOT_HELPER_SERVED"]
             that.lib.Messager.say(that, msg, true)
           }
         } , 1000 * 60)
@@ -77,7 +77,7 @@ function TBPooling (that) {
           msg.text = "*[WARNING] An error has occurred!*\n"
           msg.text += "Error: "+ error.response.body.error_code + "\n"
           msg.text += "Description: " + error.response.body.description
-          msg.text += "\n\n" + that.config.text["TELBOT_HELPER_SERVED"]
+          msg.text += "\n\n" + that.config.text["EXT-TELBOT_HELPER_SERVED"]
           that.lib.Messager.say(that, msg, true)
         }
         break
