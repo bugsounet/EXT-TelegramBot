@@ -60,11 +60,6 @@ class TELBOTCmds {
         callback : this.TELBOT_show,
       },
       {
-        command: 'alert',
-        description : TB.translate("EXT-TELBOT_ALERT"),
-        callback : this.TELBOT_alert,
-      },
-      {
         command: 'reboot',
         description : TB.translate("EXT-TELBOT_REBOOT"),
         callback : this.TELBOT_reboot,
@@ -213,19 +208,6 @@ class TELBOTCmds {
       },
       parse_mode:"Markdown"
     })
-  }
-
-  TELBOT_alert (command, handler) { // to recode with EXT-Alert
-    var title = moment().format("LT") + " - " + handler.message.from.first_name
-    var message = handler.args
-    var alerttime = this.module.config.alertTimer
-    var text = this.module.translate("EXT-TELBOT_ALERT_RESULT")
-    this.module.sendNotification("SHOW_ALERT", {
-      timer:alerttime,
-      title:title,
-      message:message
-    })
-    handler.reply("TEXT", text, {parse_mode:'Markdown'})
   }
 
   TELBOT_hideall (command, handler) {

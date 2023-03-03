@@ -15,7 +15,7 @@ function TBPooling (that) {
   if (!that.TB) return
 
   that.TB.on('polling_error', (error) => {
-    console.log(error)
+    if (that.config.debug) console.error("[TELBOT] [SERVICE] Error", error)
     if (!error.response) {
       error = {
         response: {
