@@ -161,6 +161,7 @@ Module.register("EXT-TelegramBot", {
   notificationReceived: function (notification, payload, sender) {
     switch(notification) {
       case "GAv4_READY":
+      case "GAv5_READY":
         if (sender.name == "MMM-GoogleAssistant") this.sendNotification("EXT_HELLO", this.name)
         break
       case 'ALL_MODULES_STARTED':
