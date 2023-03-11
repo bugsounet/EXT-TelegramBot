@@ -20,12 +20,13 @@
 Module.register("EXT-TelegramBot", {
   defaults: {
     debug: false,
+    telegramAPIKey: null,
+    adminChatId: null,
     allowedUser: [],
     commandAllowed: { // If set, only specific user can use these commands, other even in allowedUser cannot. These members should be allowed by allowedUser first.
       //"telecast": ["eouia", "someone"],
       //"mychatid": ["eouia"]
     },
-    alertTimer: "30000",
     useWelcomeMessage: true,
     useSoundNotification: true,
     TelegramBotServiceAlerte: true,
