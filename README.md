@@ -1,7 +1,7 @@
 TelegramBot plugin for Gateway<br>
 
 # Feature
-- You can remote-control your `MagicMirror` and plugins of MMM-GoogleAssistant within `Telegram`.
+- You can remote-control your `MagicMirror` and plugins of MMM-GoogleAssistant v5 within `Telegram`.
 - The Bot is implemented in this plugin thus you don't need to manage antoher daemon.
 - **This plugin can work ONLY with EXT plugins**
 
