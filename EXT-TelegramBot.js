@@ -4,18 +4,6 @@
  *
  * By eouia & @bugsounet
  */
- String.prototype.toRegExp = function() {
-   var lastSlash = this.lastIndexOf("/")
-   if(lastSlash > 1) {
-     var restoredRegex = new RegExp(
-       this.slice(1, lastSlash),
-       this.slice(lastSlash + 1)
-     )
-     return (restoredRegex) ? restoredRegex : new RegExp(this.valueOf())
-   } else {
-     return new RegExp(this.valueOf())
-   }
- }
 
 Module.register("EXT-TelegramBot", {
   defaults: {
@@ -49,39 +37,7 @@ Module.register("EXT-TelegramBot", {
   },
 
   start: function() {
-    this.isAlreadyInitialized = 0
-    this.commands = []
-    this.customCommandCallbacks = new Map()
-    this.askSession = new Set()
-    this.commonSession = new Map()
-    this.config.text = {
-      "EXT-TELBOT_HELPER_ERROR" : this.translate("EXT-TELBOT_HELPER_ERROR"),
-      "EXT-TELBOT_HELPER_NOT_ALLOWED" : this.translate("EXT-TELBOT_HELPER_NOT_ALLOWED"),
-      "EXT-TELBOT_HELPER_RESTART" : this.translate("EXT-TELBOT_HELPER_RESTART"),
-      "EXT-TELBOT_HELPER_WAKEUP" : this.translate("EXT-TELBOT_HELPER_WAKEUP"),
-      "EXT-TELBOT_HELPER_MSG_COMING" : this.translate("EXT-TELBOT_HELPER_MSG_COMING"),
-      "EXT-TELBOT_HELPER_SERVED": this.translate("EXT-TELBOT_HELP_SERVED", { module: "TelegramBot Service"})
-    }
-    this.config = configMerge({}, this.defaults, this.config)
-    this.sendSocketNotification('INIT', this.config)
-
-    this.TELBOTInit = new TELBOTInit()
-    this.TELBOTCmds = new TELBOTCmds()
-    this.TELBOTRegister = new TELBOTRegister()
-    this.TELBOTCmdsParser = new TELBOTCmdsParser()
-    this.TELBOTCmds.getCommands(this, new TelegramBotCommandRegister(this, this.TELBOTRegister.registerCommand.bind(this)))
-    if (this.config.telecast) {
-      this.TELBOTTelecast = new TELBOTTelecast()
-    }
-
-    this.allowed = new Set(this.config.allowedUser)
-    this.history = []
-    this.chats = []
-    /** audio part **/
-    if (this.config.useSoundNotification) {
-      this.sound = new Audio()
-      this.sound.autoplay = true
-    }
+    new TELBOTConfig(this)
   },
 
   getTranslations: function() {
@@ -101,6 +57,7 @@ Module.register("EXT-TelegramBot", {
 
   getScripts: function() {
     return [
+      "/modules/EXT-TelegramBot/components/TELBOTConfig.js",
       "/modules/EXT-TelegramBot/components/TELBOT_lib.js",
       "/modules/EXT-TelegramBot/components/TELBOTCmds.js",
       "/modules/EXT-TelegramBot/components/TELBOTRegister.js",

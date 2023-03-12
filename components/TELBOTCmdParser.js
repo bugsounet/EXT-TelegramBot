@@ -1,7 +1,7 @@
  
 class TELBOTCmdsParser {
   constructor () {
-    console.log("|TELBOT] TELBOTCmdsParser")
+    console.log("[TELBOT] TELBOTCmdsParser Ready")
   }
 
   parseCommand(that, msg) {

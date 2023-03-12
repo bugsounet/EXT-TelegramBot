@@ -1,6 +1,6 @@
 class TELBOTCmds {
   constructor () {
-    console.log("|TELBOT] TELBOTCmds Ready")
+    console.log("[TELBOT] TELBOTCmds Ready")
   }
 
   getCommands (TB, Register) {
@@ -362,7 +362,6 @@ class TELBOTCmds {
   }
 
   TELBOT_list_commands (command, handler) {
-    console.log("list", this, this.module.translate("EXT-TELBOT_COMMANDS_ERROR"))
     var text = ""
     this.module.commands.forEach((c) => {
       var name = c.command

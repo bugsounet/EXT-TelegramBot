@@ -64,7 +64,7 @@ async function cookMsg (that,msg, callback=(retmsg)=>{}) {
     return new Promise (resolve=>{
       try {
         log("Clearing old cache data")
-        var cacheDir = that.lib.path.resolve(__dirname, "cache")
+        var cacheDir = that.lib.path.resolve(__dirname, "../cache")
         var files = that.lib.fs.readdirSync(cacheDir)
         for (var f of files) {
           var p = that.lib.path.join(cacheDir, f)
