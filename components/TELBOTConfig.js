@@ -1,16 +1,3 @@
-String.prototype.toRegExp = function() {
-  console.log("toRegExp")
-  var lastSlash = this.lastIndexOf("/")
-  if(lastSlash > 1) {
-    var restoredRegex = new RegExp(
-      this.slice(1, lastSlash),
-      this.slice(lastSlash + 1)
-    )
-    return (restoredRegex) ? restoredRegex : new RegExp(this.valueOf())
-  } else {
-    return new RegExp(this.valueOf())
-  }
-}
 
 class TELBOTConfig {
   constructor(that) {
