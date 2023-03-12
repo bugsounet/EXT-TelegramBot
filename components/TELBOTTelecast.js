@@ -2,7 +2,7 @@
 
 class TELBOTTelecast {
   constructor () {
-    console.log("|TELBOT] TELBOTTelecast Ready")
+    console.log("[TELBOT] TELBOTTelecast Ready")
   }
 
   getTelecastDom(that) {

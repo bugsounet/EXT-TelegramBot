@@ -1,7 +1,7 @@
  
 class TELBOTCmdsParser {
   constructor () {
-    console.log("|TELBOT] TELBOTCmdsParser")
+    console.log("[TELBOT] TELBOTCmdsParser Ready")
   }
 
   parseCommand(that, msg) {
@@ -62,7 +62,7 @@ class TELBOTCmdsParser {
               //do nothing.
             } else {
               if (typeof p == 'string') {
-                p = p.toRegExp()
+                p = this.toRegExp(p)
               } else {
                 p = /.*/
               }
@@ -150,5 +150,18 @@ class TELBOTCmdsParser {
 
   adminSay (that, response) {
     that.sendSocketNotification('SAY_ADMIN', response)
+  }
+
+  toRegExp(exp) {
+    var lastSlash = exp.lastIndexOf("/")
+    if(lastSlash > 1) {
+      var restoredRegex = new RegExp(
+        exp.slice(1, lastSlash),
+        exp.slice(lastSlash + 1)
+      )
+      return (restoredRegex) ? restoredRegex : new RegExp(exp.valueOf())
+    } else {
+      return new RegExp(exp.valueOf())
+    }
   }
 }

@@ -2,7 +2,7 @@
 
 class TELBOTRegister {
   constructor () {
-    console.log("|TELBOT] TELBOTRegister Ready")
+    console.log("[TELBOT] TELBOTRegister Ready")
   }
 
   registerCommand(module, commandObj) {
