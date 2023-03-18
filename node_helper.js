@@ -34,11 +34,8 @@ module.exports = NodeHelper.create({
       case 'ALLOWEDUSER':
         this.allowed = new Set(payload)
         break
-      case 'REBOOT':
-        if (this.TB) this.lib.shell(this, 'sudo reboot')
-        break
       case 'SHUTDOWN':
-        if (this.TB) this.shell(this, 'sudo shutdown now')
+        if (this.TB) this.lib.Messager.shell(this, 'sudo shutdown now')
         break
       case 'SCREENSHOT':
         if (this.TB) this.lib.screenshot.scrot(this,payload.session)

@@ -60,11 +60,6 @@ class TELBOTCmds {
         callback : this.TELBOT_show,
       },
       {
-        command: 'reboot',
-        description : TB.translate("EXT-TELBOT_REBOOT"),
-        callback : this.TELBOT_reboot,
-      },
-      {
         command: 'shutdown',
         description : TB.translate("EXT-TELBOT_SHUTDOWN"),
         callback : this.TELBOT_shutdown,
