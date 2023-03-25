@@ -11,7 +11,6 @@ module.exports = NodeHelper.create({
   initialize: function(config) {
     this.config = config
     console.log("[TELBOT] EXT-TelegramBot Version:",  require('./package.json').version, "rev:", require('./package.json').rev)
-
     parseData.parse(this)
   },
 
