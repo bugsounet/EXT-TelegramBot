@@ -15,16 +15,13 @@ class TELBOTConfig {
       "EXT-TELBOT_HELPER_SERVED": that.translate("EXT-TELBOT_HELP_SERVED", { module: "TelegramBot Service"})
     }
     that.config = configMerge({}, that.defaults, that.config)
-    that.sendSocketNotification('INIT', that.config)
 
     that.TELBOTInit = new TELBOTInit()
     that.TELBOTCmds = new TELBOTCmds()
     that.TELBOTRegister = new TELBOTRegister()
     that.TELBOTCmdsParser = new TELBOTCmdsParser()
     that.TELBOTCmds.getCommands(that, new TelegramBotCommandRegister(that, that.TELBOTRegister.registerCommand.bind(that)))
-    if (that.config.telecast) {
-      that.TELBOTTelecast = new TELBOTTelecast()
-    }
+    if (that.config.telecast) that.TELBOTTelecast = new TELBOTTelecast()
 
     that.allowed = new Set(that.config.allowedUser)
     that.history = []

@@ -38,12 +38,13 @@ async function parse(that,data) {
 
     that.lib.TBService.TBPooling(that)
     console.log("[TELBOT] [DATA] Ready!")
+    that.sendSocketNotification("INITIALIZED")
 
     if (that.adminChatId && that.config.useWelcomeMessage) {
       that.lib.Messager.say(that, that.lib.Messager.welcomeMsg(that))
     }
   } else { // inform with EXT-Alert
-    console.error("[TELBOT] [DATA] Configuration fails.")
+    console.error("[TELBOT] [DATA] telegramAPIKey missing!")
   }
 }
 

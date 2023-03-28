@@ -86,6 +86,12 @@ Module.register("EXT-TelegramBot", {
 
   socketNotificationReceived: function (notification, payload) {
     switch (notification) {
+      case "INITIALIZED":
+        if (this.isAlreadyInitialized) return
+        else this.isAlreadyInitialized = 1
+        this.TELBOTInit.init(this)
+        this.sendNotification("EXT_HELLO", this.name)
+        break
       case 'CHAT':
         this.TELBOTTelecast.telecast(this, payload)
         break
@@ -118,17 +124,12 @@ Module.register("EXT-TelegramBot", {
 
   notificationReceived: function (notification, payload, sender) {
     switch(notification) {
-      case "GAv5_READY":
-        if (sender.name == "MMM-GoogleAssistant") this.sendNotification("EXT_HELLO", this.name)
-        break
-      case 'ALL_MODULES_STARTED':
-        if (this.isAlreadyInitialized) return
-        else this.isAlreadyInitialized = 1
-        this.sendSocketNotification('ALLOWEDUSER', [...this.allowed])
-        this.TELBOTInit.init(this)
-        break
-      case 'EXT_TELBOT-REGISTER_COMMAND':
-        this.TELBOTCmds.registerCommand(sender, payload)
+      case "GW_READY":
+        if (sender.name == "Gateway") {
+          if (this.isAlreadyInitialized) return
+          this.sendSocketNotification('INIT', this.config)
+          this.sendSocketNotification('ALLOWEDUSER', [...this.allowed])
+        }
         break
       case 'EXT_TELBOT-TELL_ADMIN':
         if (typeof payload == 'string') {
