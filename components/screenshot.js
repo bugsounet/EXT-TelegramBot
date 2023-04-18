@@ -3,7 +3,7 @@ var log = (...args) => { /* do nothing */ }
 
 function scrot(that, sessionId = null, callback=null) {
   if (that.config.debug) log = (...args) => { console.log("[TELBOT] [SCREENSHOT]", ...args) }
-  var shotDir = that.lib.path.resolve(__dirname, "screenshot")
+  var shotDir = that.lib.path.resolve(__dirname, "../screenshot")
   var command = "scrot -o " + shotDir + "/screenshot.png"
   var t = new that.lib.moment()
   var retObj = {
@@ -23,15 +23,16 @@ function scrot(that, sessionId = null, callback=null) {
     }
   }
   log("SCREENSHOT:", command)
-  that.lib.child_process.exec(command, function(error, stdout, stderr){
+  that.lib.child_process.exec(command, (error, stdout, stderr) => {
     var result = stdout
     if (error) {
       retObj.result = error.message
       result = error.message
+      log("SCREENSHOT RESULT:", error.message)
     } else {
       retObj.status = true
+      log("SCREENSHOT RESULT: Ok")
     }
-    log("SCREENSHOT RESULT:", result)
     callback(result, sessionId)
   })
 }
