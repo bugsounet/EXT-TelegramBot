@@ -99,7 +99,7 @@ Module.register("EXT-TelegramBot", {
         this.TELBOTCmdsParser.parseCommand(this, payload)
         break
       case 'SCREENSHOT_RESULT':
-        this.TELBOT_screenshot_result(payload.session, payload)
+        this.TELBOTCmds.TELBOT_screenshot_result(this, payload.session, payload)
         break
       case 'ANSWER':
         this.askSession.forEach((s)=> {

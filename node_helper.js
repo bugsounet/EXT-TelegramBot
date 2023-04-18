@@ -5,6 +5,7 @@ var NodeHelper = require("node_helper");
 
 module.exports = NodeHelper.create({
   start: function () {
+    process.env.NTBA_FIX_350 = 1
     parseData.init(this)
   },
 

@@ -134,15 +134,15 @@ class TELBOTCmds {
     this.module.sendSocketNotification("SCREENSHOT", {session: sessionId})
   }
 
-  TELBOT_screenshot_result (sessionId, ret) {
-    var handler = this.module.commonSession.get(sessionId)
+  TELBOT_screenshot_result (that, sessionId, ret) {
+    var handler = that.commonSession.get(sessionId)
     var text = ""
     if (handler && ret.status) {
-      this.module.commonSession.delete(sessionId)
-      text = this.module.translate("EXT-TELBOT_SCREENSHOT_RESULT") + ret.timestamp
+      that.commonSession.delete(sessionId)
+      text = that.translate("EXT-TELBOT_SCREENSHOT_RESULT") + ret.timestamp
       handler.reply("PHOTO_PATH", ret.path, {caption: text})
     } else {
-      text = this.module.translate("EXT-TELBOT_SCREENSHOT_RESULT_ERROR") + "\n" + ret.result
+      text = that.translate("EXT-TELBOT_SCREENSHOT_RESULT_ERROR") + "\n" + ret.result
       handler.reply("TEXT", text, {parse_mode:"Markdown"})
     }
   }
