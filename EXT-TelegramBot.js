@@ -47,7 +47,8 @@ Module.register("EXT-TelegramBot", {
       id: "translations/id.json",
       fr: "translations/fr.json",
       it: "translations/it.json",
-      es: "translations/es.json"
+      es: "translations/es.json",
+      "zh-cn": "translations/zh-cn.json"
     }
   },
 
