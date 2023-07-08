@@ -35,7 +35,7 @@
   "homepage": "https://github.com/bugsounet/EXT-TelegramBot",
   "dependencies": {
     "check-node-version": "^4.2.1",
-    "glob": "^9.0.1",
+    "glob": "^10.3.2",
     "minify": "^9.2.0",
     "node-telegram-bot-api": "^0.61.0"
   }
