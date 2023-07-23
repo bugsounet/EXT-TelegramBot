@@ -1,8 +1,16 @@
 #!/bin/bash
-# +-----------------+
-# | npm postinstall |
-# | @bugsounet      |
-# +-----------------+
+# +----------------+
+# | npm preinstall |
+# +----------------+
+
+dependencies=
+
+while getopts ":d:" option; do
+  case $option in
+    d) # -d option for install dependencies
+       dependencies=($OPTARG);;
+  esac
+done
 
 # get the installer directory
 Installer_get_current_dir () {
@@ -19,15 +27,15 @@ Installer_dir="$(Installer_get_current_dir)"
 
 # move to installler directory
 cd "$Installer_dir"
-
 source utils.sh
 
-# use beep request questions ?
-Installer_beep=false
+# Go back to module root
+cd ..
 
+echo
 # check version in package.json file
-Installer_version="$(grep -Eo '\"version\"[^,]*' ../package.json | grep -Eo '[^:]*$' | awk  -F'\"' '{print $2}')"
-Installer_module="$(grep -Eo '\"name\"[^,]*' ../package.json | grep -Eo '[^:]*$' | awk  -F'\"' '{print $2}')"
+Installer_version="$(grep -Eo '\"version\"[^,]*' ./package.json | grep -Eo '[^:]*$' | awk  -F'\"' '{print $2}')"
+Installer_module="$(grep -Eo '\"name\"[^,]*' ./package.json | grep -Eo '[^:]*$' | awk  -F'\"' '{print $2}')"
 
 # Let's start !
 Installer_info "Welcome to $Installer_module v$Installer_version"
@@ -35,29 +43,39 @@ Installer_info "Welcome to $Installer_module v$Installer_version"
 echo
 
 # Check not run as root
+Installer_info "No root checking..."
 if [ "$EUID" -eq 0 ]; then
   Installer_error "npm install must not be used as root"
-  exit 1
+  exit 255
 fi
+Installer_chk "$(pwd)/" "$Installer_module"
+Installer_chk "$(pwd)/../../" "MagicMirror"
+echo
 
 # Check platform compatibility
 Installer_info "Checking OS..."
 Installer_checkOS
 if  [ "$platform" == "osx" ]; then
   Installer_error "OS Detected: $OSTYPE ($os_name $os_version $arch)"
-  Installer_error "You need to install manually 'scrot' program for using 'screenshot' function"
-  exit 0
+  Installer_error "Automatic installation is not included"
+  echo
+  exit 255
 else
-  Installer_success "OS Detected: $OSTYPE ($os_name $os_version $arch)"
-  dependencies=(scrot)
-  [ "${__NO_DEP_CHECK__}" ] || {
-    Installer_info "Checking all dependencies..."
-    Installer_check_dependencies
-    Installer_success "All Dependencies needed are installed !"
-  }
+  if  [ "$os_name" == "raspbian" ] && [ "$os_version" -lt 11 ]; then
+    Installer_error "OS Detected: $OSTYPE ($os_name $os_version $arch)"
+    Installer_error "Unfortunately, this module is not compatible with your OS"
+    Installer_error "Try to update your OS to the lasted version of raspbian"
+    echo
+    exit 255
+  else
+    Installer_success "OS Detected: $OSTYPE ($os_name $os_version $arch)"
+  fi
 fi
 
 echo
-
-Installer_info "Installing all library..."
-echo
+#check dependencies
+if [[ -n $dependencies ]]; then
+  Installer_info "Checking all dependencies..."
+  Installer_update_dependencies || exit 255
+  Installer_success "All Dependencies needed are installed !"
+fi
