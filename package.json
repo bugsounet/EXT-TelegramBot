@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/bugsounet/EXT-TelegramBot",
   "dependencies": {
-    "esbuild": "^0.18.16",
+    "esbuild": "^0.18.17",
     "glob": "^10.3.3",
     "node-telegram-bot-api": "^0.61.0"
   }
