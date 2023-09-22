@@ -1,0 +1,12 @@
+{
+  "EXT-TELBOT_HIDE": "istenen modülü gizle",
+  "EXT-TELBOT_HIDE_ALREADY": " zaten gizli",
+  "EXT-TELBOT_HIDE_DONE": " imdi gizli",
+  "EXT-TELBOT_HIDE_LOCKED":  " başka bir program tarafından kilitlendi, gizlenemiyor",
+  "EXT-TELBOT_SHOW": "istenilen modülü göster",
+  "EXT-TELBOT_SHOW_ALREADY": " zaten gösterildi",
+  "EXT-TELBOT_SHOW_DONE": " şimdi gösteriliyor",
+  "EXT-TELBOT_SHOW_LOCKED": " 已zaten başka bir program tarafından kilitlenmiş, gösteremiyorum",
+  "EXT-TELBOT_MODULE_NOTFOUND": "Modül bulunamadı: ",
+  "EXT-TELBOT_MODULE_NAME": " Modülün adı eksik"
+}
