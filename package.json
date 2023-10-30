@@ -35,6 +35,6 @@
   "dependencies": {
     "esbuild": "^0.19.5",
     "glob": "^10.3.10",
-    "node-telegram-bot-api": "^0.63.0"
+    "node-telegram-bot-api": "^0.64.0"
   }
 }
