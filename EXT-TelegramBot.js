@@ -126,8 +126,8 @@ Module.register("EXT-TelegramBot", {
 
   notificationReceived: function (notification, payload, sender) {
     switch(notification) {
-      case "GW_READY":
-        if (sender.name == "Gateway") {
+      case "GA_READY":
+        if (sender.name == "MMM-GoogleAssistant") {
           if (this.isAlreadyInitialized) return
           this.sendSocketNotification('INIT', this.config)
           this.sendSocketNotification('ALLOWEDUSER', [...this.allowed])
