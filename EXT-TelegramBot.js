@@ -65,7 +65,7 @@ Module.register("EXT-TelegramBot", {
       "/modules/EXT-TelegramBot/components/TELBOTRegister.js",
       "/modules/EXT-TelegramBot/components/TELBOTCmdParser.js",
       "/modules/EXT-TelegramBot/components/TELBOTTelecast.js",
-      "/modules/EXT-TelegramBot/components/TELBOTInit-min.js"
+      "/modules/EXT-TelegramBot/components/TELBOTInit.js"
     ]
   },
 
