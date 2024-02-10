@@ -51,7 +51,6 @@ Module.register("EXT-TelegramBot", {
     }
     this.config = configMerge({}, this.defaults, this.config)
 
-    this.TELBOTInit = new TELBOTInit()
     this.TELBOTCmds = new TELBOTCmds()
     this.TELBOTRegister = new TELBOTRegister()
     this.TELBOTCmdsParser = new TELBOTCmdsParser()
@@ -91,8 +90,7 @@ Module.register("EXT-TelegramBot", {
       "/modules/EXT-TelegramBot/components/TELBOTCmds.js",
       "/modules/EXT-TelegramBot/components/TELBOTRegister.js",
       "/modules/EXT-TelegramBot/components/TELBOTCmdParser.js",
-      "/modules/EXT-TelegramBot/components/TELBOTTelecast.js",
-      "/modules/EXT-TelegramBot/components/TELBOTInit.js"
+      "/modules/EXT-TelegramBot/components/TELBOTTelecast.js"
     ]
   },
 
@@ -118,7 +116,14 @@ Module.register("EXT-TelegramBot", {
       case "INITIALIZED":
         if (this.isAlreadyInitialized) return
         else this.isAlreadyInitialized = 1
-        this.TELBOTInit.init(this)
+        MM.getModules().enumerate(m=>{
+          if ("EXT-TelegramBot"!==m.name && (m.name.startsWith("EXT-")||"MMM-GoogleAssistant"===m.name) && typeof m.EXT_TELBOTCommands == "function"){
+            var tc=m.EXT_TELBOTCommands(new TelegramBotCommandRegister(m,this.TELBOTRegister.registerCommand.bind(this)))
+            Array.isArray(tc)&&tc.forEach(c=>{
+              this.TELBOTCmds.registerCommand(m,c)
+            })
+          }
+        })
         this.sendNotification("EXT_HELLO", this.name)
         break
       case 'CHAT':
