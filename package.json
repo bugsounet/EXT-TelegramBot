@@ -2,7 +2,7 @@
   "name": "EXT-TelegramBot",
   "version": "2.3.0",
   "rev": "240103",
-  "description": "TelegramBot module for remote-controlling MagicMirror.",
+  "description": "TelegramBot module for remote-controlling MagicMirror².",
   "main": "EXT-TelegramBot.js",
   "scripts": {
     "preinstall": "installer/preinstall.sh -d 'scrot'",

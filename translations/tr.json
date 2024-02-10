@@ -26,7 +26,7 @@
   "EXT-TELBOT_ALLOWUSER_REGISTERED" : "Kullanıcı kayıtlı.\nKontrol için `/allowed` komutunu deneyin.\nBu kullanıcı yeniden başlatmanın ardından iznini kaybedecek.\nKalıcı izin için bu kullanıcıyı `config.js'de `allowedUser` içine yerleştirebilirsiniz.",
   "EXT-TELBOT_ALLOWUSER_ERROR" : "Bu kullanıcıyı kaydedemiyorum. Yazım veya kullanıcı adının eksik olup olmadığını kontrol edin.",
   "EXT-TELBOT_ALERT" : "'Sihirli Ayna'nınızda uyarı mesajını göster.",
-  "EXT-TELBOT_ALERT_RESULT" : "Mesajınızı 'MagicMirror'a gönderdim.",
+  "EXT-TELBOT_ALERT_RESULT" : "Mesajınızı 'MagicMirror²'a gönderdim.",
   "EXT-TELBOT_REBOOT" : "'Sihirli Ayna'yı yeniden başlatın.",
   "EXT-TELBOT_SHUTDOWN" : "'Sihirli Ayna'ı kapatın.",
   "EXT-TELBOT_REBOOT_RESPONSE" : "Şimdi 'Sihirli Ayna'yı yeniden başlatacağım.",

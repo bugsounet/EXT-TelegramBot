@@ -1,4 +1,4 @@
-/** parse data from MagicMirror **/
+/** parse data from MagicMirror² **/
 var _load = require("../components/loadLibraries.js")
 
 async function init(that) {
