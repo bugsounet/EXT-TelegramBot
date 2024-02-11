@@ -1,7 +1,7 @@
 {
   "name": "EXT-TelegramBot",
-  "version": "2.3.1",
-  "rev": "240210",
+  "version": "2.4.0",
+  "rev": "240211",
   "description": "TelegramBot module for remote-controlling MagicMirror².",
   "main": "EXT-TelegramBot.js",
   "scripts": {
