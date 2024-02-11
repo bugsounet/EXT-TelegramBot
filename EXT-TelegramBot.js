@@ -51,9 +51,7 @@ Module.register("EXT-TelegramBot", {
     }
     this.config = configMerge({}, this.defaults, this.config)
 
-    this.TELBOTCmdsParser = new TELBOTCmdsParser()
     this.getCommands(new TelegramBotCommandRegister(this, this.registerCommand.bind(this)))
-    if (this.config.telecast) this.TELBOTTelecast = new TELBOTTelecast()
 
     this.allowed = new Set(this.config.allowedUser)
     this.history = []
@@ -84,9 +82,7 @@ Module.register("EXT-TelegramBot", {
 
   getScripts: function() {
     return [
-      "/modules/EXT-TelegramBot/components/TELBOT_lib.js",
-      "/modules/EXT-TelegramBot/components/TELBOTCmdParser.js",
-      "/modules/EXT-TelegramBot/components/TELBOTTelecast.js"
+      "/modules/EXT-TelegramBot/components/TELBOT_lib.js"
     ]
   },
 
@@ -99,7 +95,7 @@ Module.register("EXT-TelegramBot", {
     }
     if (this.config.telecast) {
       dom.setAttribute('style', "--container-width:" + this.config.telecastContainer + "px;")
-      dom.appendChild(this.TELBOTTelecast.getTelecastDom(this))
+      dom.appendChild(this.getTelecastDom())
     }
     else {
       dom.style.display = 'none'
@@ -125,21 +121,21 @@ Module.register("EXT-TelegramBot", {
         this.sendNotification("EXT_HELLO", this.name)
         break
       case 'CHAT':
-        this.TELBOTTelecast.telecast(this, payload)
+        this.telecast(payload)
         break
       case 'COMMAND':
-        this.TELBOTCmdsParser.parseCommand(this, payload)
+        this.parseCommand(payload)
         break
       case 'SCREENSHOT_RESULT':
-        this.TELBOT_screenshot_result(this, payload.session, payload)
+        this.TELBOT_screenshot_result(payload.session, payload)
         break
       case 'ANSWER':
         this.askSession.forEach((s)=> {
           if (s.session_id == payload.sessionId) {
             var callbacks = {
-              reply: this.TELBOTCmdsParser.reply.bind(this),
-              ask: this.TELBOTCmdsParser.ask.bind(this),
-              say: this.TELBOTCmdsParser.say.bind(this)
+              reply: this.reply.bind(this),
+              ask: this.ask.bind(this),
+              say: this.say.bind(this)
             }
             var handler = new TelegramBotMessageHandler( payload, payload.text, callbacks )
             s.callback("ANSWER_FOR_ASK", handler)
@@ -172,10 +168,10 @@ Module.register("EXT-TelegramBot", {
             text : payload,
             option : {parse_mode:'Markdown'}
           }
-          this.TELBOTCmdsParser.adminSay(this, r)
+          this.adminSay(r)
         } else if (typeof payload == "object") {
           var r = Object.assign({}, payload, {chat_id:null})
-          this.TELBOTCmdsParser.adminSay(this, r)
+          this.adminSay(r)
         }
         break
     }
@@ -605,5 +601,304 @@ Module.register("EXT-TelegramBot", {
     }
     this.commands.push(cObj)
     return true
+  },
+
+  parseCommand: function(msg) {
+    const createHandler = (msg, args) => {
+      var callbacks = {
+        reply: this.reply.bind(this),
+        ask: this.ask.bind(this),
+        say: this.say.bind(this)
+      }
+      return new TelegramBotMessageHandler(msg, args, callbacks)
+    }
+    var args = null
+    var response = null
+    var chatId = msg.chat.id
+    if (typeof msg.text == 'undefined') return
+    var msgText = msg.text
+    if (msgText.indexOf("/") !== 0) return
+    var matched = msgText.match(new RegExp("^\/([0-9a-zA-Z-_]+)\s?(.*)$"))
+    var matchedCommands = []
+    if (matched) {
+      matchedCommands = this.commands.filter((c)=>{
+        if (c.command.indexOf(matched[1]) == 0) return true
+        return false
+      })
+      if (matchedCommands.length > 1) {
+        var exact = matchedCommands.filter((c)=>{
+          if (c.command == matched[1]) return true
+          return false
+        })
+        if (exact.length == 1) {
+          matchedCommands = exact
+        }
+      }
+    }
+    if (matchedCommands.length == 1) {
+      //proper
+      var c = matchedCommands[0]
+      if (this.config.commandAllowed.hasOwnProperty(c.command)) {
+        var allowedUser = this.config.commandAllowed[c.command]
+        if (Array.isArray(allowedUser) && allowedUser.length > 0) {
+          if (!allowedUser.includes(msg.from.username)) {
+            var handler = createHandler(msg, null)
+            var text = this.translate("EXT-TELBOT_NOT_ALLOWED_COMMAND")
+            handler.reply("TEXT", text, {parse_mode:"Markdown"})
+            return
+          }
+        }
+      }
+      var restText = matched[2].trim()
+      if (restText == '') {
+        args = null
+      } else {
+        if (c.argsPattern && Array.isArray(c.argsPattern)) {
+          args = []
+          for(var j = 0; j < c.argsPattern.length; j++) {
+            var p = c.argsPattern[j]
+            if (p instanceof RegExp) {
+              //do nothing.
+            } else {
+              if (typeof p == 'string') {
+                p = this.toRegExp(p)
+              } else {
+                p = /.*/
+              }
+            }
+            var result = p.exec(restText.trim())
+            if (c.argsMapping && Array.isArray(c.argsMapping)) {
+              if (typeof c.argsMapping[j] !== 'undefined') {
+                if (result && result.length == 1) {
+                  args[c.argsMapping[j]] = result[0]
+                } else {
+                  args[c.argsMapping[j]] = result
+                }
+              } else {
+                if (result && result.length == 1) {
+                  args.push(result[0])
+                } else {
+                  args.push(result)
+                }
+              }
+            } else {
+              if (result && result.length == 1) {
+                args.push(result[0])
+              } else {
+                args.push(result)
+              }
+            }
+          }
+        } else {
+          args = restText
+        }
+      }
+      if (msg.chat.id == this.config.adminChatId) {
+        msg.admin = 'admin'
+      }
+      if (c.callback !== 'notificationReceived') {
+        var handler = createHandler(msg, args)
+        if (typeof c.callback == "function") {
+          c.callback(c.execute, handler, c.module)
+        } else {
+          c.module[c.callback].bind(c.module)
+          c.module[c.callback](c.execute, handler, c.module)
+        }
+      } else {
+        c.module[c.callback].bind(c.module)
+        c.module[c.callback](c.execute, args)
+      }
+      this.history.push(msg.text)
+      while(this.history.length > 5) {
+        this.history.shift()
+      }
+    } else {
+      //0 or multi
+      var handler = createHandler(msg, null)
+      var text = this.translate("EXT-TELBOT_NOT_REGISTERED_COMMAND")
+      if (matchedCommands.length > 1) {
+        text = this.translate("EXT-TELBOT_FOUND_SEVERAL_COMMANDS")
+        for (var tc of matchedCommands) {
+          text += `*/${tc.command}*\n`
+        }
+      }
+      handler.reply("TEXT", text, {parse_mode:"Markdown"})
+    }
+  },
+
+  reply: function(response) {
+    this.sendSocketNotification('REPLY', response)
+  },
+
+  ask: function (response, sessionId, callback) {
+    if (sessionId == null) return false
+    var session = {
+      session_id : sessionId,
+      callback:callback,
+      time:moment().format('X')
+    }
+    this.askSession.add(session)
+    response.askSession = session
+    this.sendSocketNotification('ASK', response)
+  },
+
+  say: function (response, adminMode=false) {
+    if (adminMode) this.sendSocketNotification('SAY_ADMIN', response)
+    else this.sendSocketNotification('SAY', response)
+  },
+
+  adminSay: function(response) {
+    this.sendSocketNotification('SAY_ADMIN', response)
+  },
+
+  toRegExp: function(exp) {
+    var lastSlash = exp.lastIndexOf("/")
+    if(lastSlash > 1) {
+      var restoredRegex = new RegExp(
+        exp.slice(1, lastSlash),
+        exp.slice(lastSlash + 1)
+      )
+      return (restoredRegex) ? restoredRegex : new RegExp(exp.valueOf())
+    } else {
+      return new RegExp(exp.valueOf())
+    }
+  },
+
+  getTelecastDom: function() {
+    var dom = document.createElement("div")
+    dom.classList.add("container")
+    var anchor = document.createElement("div")
+    anchor.id = "EXT-TELBOT_ANCHOR"
+    dom.appendChild(anchor)
+    if (this.config.telecastHideOverflow) dom.classList.add("telecastHideOverflow")
+    for (var c of this.chats) {
+      this.appendTelecastChat(dom, c)
+    }
+    return dom
+  },
+
+  appendTelecastChat: function(parent, c) {
+    const getImageURL = (id)=>{
+      return "/modules/EXT-TelegramBot/cache/" + id
+    }
+    var anchor = parent.querySelector("#EXT-TELBOT_ANCHOR")
+    var chat = document.createElement("div")
+    chat.classList.add("chat")
+    var from = document.createElement("div")
+    from.classList.add("from")
+    var profile = document.createElement("div")
+    profile.classList.add("profile")
+    if (c.from._photo) {
+      let profileImage = document.createElement("img")
+      profileImage.classList.add("profileImage")
+      profileImage.src = getImageURL(c.from._photo)
+      profile.appendChild(profileImage)
+    } else {
+      let altName = ""
+      if (c.from.first_name) altName += c.from.first_name.substring(0, 1)
+      if (c.from.last_name) altName += c.from.last_name.substring(0, 1)
+      if (!altName) altName += c.from.username.substring(0, 2)
+      let rr = c.from.id % 360
+      var hsl = `hsl(${rr}, 75%, 50%)`
+      //profile.style.backgroundColor = "hsl(${rr}, 100%, 50%)"
+      profile.style.backgroundColor = hsl
+      profile.innerHTML = altName
+    }
+    from.appendChild(profile)
+    chat.appendChild(from)
+    var message = document.createElement("div")
+    message.classList.add("message")
+    var bubble = document.createElement("div")
+    bubble.classList.add("bubble")
+    //reply
+    if (c.chat._photo) {
+      var photo = document.createElement("div")
+      photo.classList.add("photo")
+      var background = document.createElement("div")
+      background.classList.add("background")
+      background.style.backgroundImage = `url(${getImageURL(c.chat._photo)})`
+      photo.appendChild(background)
+      var imageContainer = document.createElement("div")
+      imageContainer.classList.add("imageContainer")
+      var photoImage = document.createElement("img")
+      photoImage.classList.add("photoImage")
+      photoImage.src = getImageURL(c.chat._photo)
+      photoImage.onload = ()=>{
+        anchor.scrollIntoView(false)
+      }
+      imageContainer.appendChild(photoImage)
+      photo.appendChild(imageContainer)
+      bubble.appendChild(photo)
+    }
+    if (c.chat._video) {
+      var video = document.createElement("video")
+      video.classList.add("video")
+      video.autoplay = true
+      video.loop = true
+      video.src = getImageURL(c.chat._video)
+      video.addEventListener('loadeddata', () => {
+        anchor.scrollIntoView(false)
+      }, false)
+      video.addEventListener("error", (e) => {
+        delete c.chat._video
+        c.text = "Video Error!"
+        this.updateDom()
+      }, false)
+      bubble.appendChild(video)
+    }
+
+    if (c.text) {
+      var text = document.createElement("div")
+      text.classList.add("text")
+      text.innerHTML = c.text
+      bubble.appendChild(text)
+    }
+
+    if (c.chat._audio) {
+      var text = document.createElement("div")
+      text.classList.add("text")
+      var audio = new Audio(getImageURL(c.chat._audio))
+      audio.volume = 0.6
+      audio.play()
+      text.innerHTML = c.title ? c.title: (c.caption ? c.caption :"Audio")
+      bubble.appendChild(text)
+    }
+
+    if (c.chat._voice) {
+      var text = document.createElement("div")
+      text.classList.add("text")
+      var voice = new Audio(getImageURL(c.chat._voice))
+      voice.volume = 1.0
+      voice.play()
+      text.innerHTML = "Voice"
+      bubble.appendChild(text)
+    }
+
+    message.appendChild(bubble)
+    chat.appendChild(message)
+    chat.timer = setTimeout(()=>{
+      parent.removeChild(chat)
+    }, this.config.telecastLife)
+    parent.insertBefore(chat, anchor)
+  },
+
+  telecast: function(msgObj) {
+    if (!this.config.telecast) return
+    if (!msgObj.text && !msgObj.photo && !msgObj.sticker && !msgObj.animation && !msgObj.audio && !msgObj.voice) return
+    if (this.config.useSoundNotification) this.sound.src = "modules/EXT-TelegramBot/resources/msg_incoming.mp3"
+    while (this.chats.length >= this.config.telecastLimit) {
+      this.chats.shift()
+    }
+    this.chats.push(msgObj)
+    var dom = document.querySelector("#EXT-TELBOT .container")
+
+    while(dom.childNodes.length >= this.config.telecastLimit + 1) {
+      if (dom.firstChild.id !== "EXT-TELBOT_ANCHOR") dom.removeChild(dom.firstChild)
+    }
+    this.appendTelecastChat(dom, msgObj)
+    this.sendNotification("EXT-TELBOT_TELECAST", msgObj)
+    var dom = document.querySelector("#EXT-TELBOT .container")
+    var anchor = document.querySelector("#EXT-TELBOT_ANCHOR")
+    anchor.scrollIntoView(false)
   }
 })
