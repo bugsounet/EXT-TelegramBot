@@ -132,7 +132,7 @@ class TLGMediaMessage extends TLGMessage {
   constructor(path, option={}) {
     super(path, option)
     this.option = {
-      caption: "sent by MagicMirror",
+      caption: "sent by MagicMirror²",
       disable_notification : true,
       reply_to_message_id : null,
       reply_markup : null,
