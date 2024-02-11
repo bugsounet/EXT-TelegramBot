@@ -1,18 +1,58 @@
 'use strict'
 
-var parseData = require("./components/parseData.js")
+var log = (...args) => { /* do nothing */ }
 var NodeHelper = require("node_helper");
 
 module.exports = NodeHelper.create({
   start: function () {
     process.env.NTBA_FIX_350 = 1
-    parseData.init(this)
+    this.lib = { error: 0 }
+    this.config = {}
+    this.commands = []
+    this.callsigns = []
+    this.adminChatId = undefined
+    this.askSession = new Set()
+    this.allowed = new Set()
+    this.TB = null
+    this.counterInstance = 0
+    this.TBService = true
   },
 
-  initialize: function(config) {
+  initialize: async function(config) {
     this.config = config
     console.log("[TELBOT] EXT-TelegramBot Version:",  require('./package.json').version, "rev:", require('./package.json').rev)
-    parseData.parse(this)
+    if (this.config.debug) log = (...args) => { console.log("[TELBOT]", ...args) }
+    let bugsounet = await this.libraries()
+    if (bugsounet) {
+      console.error(`[TELBOT] [DATA] Warning: ${bugsounet} needed library not loaded!`)
+      return
+    }
+    this.startTime = this.lib.moment()
+    this.TBService = this.config.TelegramBotServiceAlerte
+    
+    if (typeof this.config.adminChatId !== 'undefined') {
+      this.adminChatId = this.config.adminChatId
+    }
+  
+    if (typeof this.config.telegramAPIKey !== 'undefined') {
+      try {
+        var option = Object.assign({polling:true}, this.config.detailOption)
+        this.TB = new this.lib.TelegramBot(this.config.telegramAPIKey, option)
+        var me = this.TB.getMe()
+      } catch (err) {
+        return console.log("[TELBOT] [DATA]", err)
+      }
+  
+      this.lib.TBService.TBPooling(this)
+      console.log("[TELBOT] [DATA] Ready!")
+      this.sendSocketNotification("INITIALIZED")
+  
+      if (this.adminChatId && this.config.useWelcomeMessage) {
+        this.lib.Messager.say(this, this.lib.Messager.welcomeMsg(this))
+      }
+    } else { // inform with EXT-Alert
+      console.error("[TELBOT] [DATA] telegramAPIKey missing!")
+    }
   },
 
   socketNotificationReceived: function (notification, payload) {
@@ -44,5 +84,43 @@ module.exports = NodeHelper.create({
         if (this.TB) this.lib.Messager.processTelecast(this,payload)
         break
     }
+  },
+
+  libraries: function() {
+    let libraries= [
+      // { "library to load" : "store library name" }
+      { "moment": "moment" },
+      { "node-telegram-bot-api": "TelegramBot" },
+      { "fs": "fs" },
+      { "child_process": "child_process" },
+      { "path": "path" },
+      { "https": "https" },
+      { "./components/screenshot": "screenshot" },
+      { "./components/TBService": "TBService" },
+      { "./components/ProcessTBMessager": "Messager" }
+    ]
+    let errors = 0
+    return new Promise(resolve => {
+      libraries.forEach(library => {
+        for (const [name, configValues] of Object.entries(library)) {
+          let libraryToLoad = name
+          let libraryName = configValues
+  
+          try {
+            if (!this.lib[libraryName]) {
+              this.lib[libraryName] = require(libraryToLoad)
+              log(`[LIBRARY] Loaded: ${libraryToLoad} --> this.lib.${libraryName}`)
+            }
+          } catch (e) {
+            console.error(`[TELBOT] [LIBRARY] ${libraryToLoad} Loading error!` , e.toString())
+            this.sendSocketNotification("WARNING" , {library: libraryToLoad })
+            errors++
+            this.lib.error = errors
+          }
+        }
+      })
+      if (!errors) console.log("[TELBOT] [LIBRARY] All libraries loaded!")
+      resolve(errors)
+    })
   }
 })
