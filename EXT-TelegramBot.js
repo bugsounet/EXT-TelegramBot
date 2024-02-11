@@ -315,6 +315,7 @@ Module.register("EXT-TelegramBot", {
       this.commonSession.delete(sessionId)
       text = this.translate("EXT-TELBOT_SCREENSHOT_RESULT") + ret.timestamp
       handler.reply("PHOTO_PATH", ret.path, {caption: text})
+      this.sendNotification("EXT_GPHOTOPHOTOS-UPLOAD", ret.path)
     } else {
       text = this.translate("EXT-TELBOT_SCREENSHOT_RESULT_ERROR") + "\n" + ret.result
       handler.reply("TEXT", text, {parse_mode:"Markdown"})
