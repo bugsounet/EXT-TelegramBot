@@ -18,9 +18,7 @@ let commentOut = "**/"
 
 function searchFiles() {
   let components = globSync('../components/*.js')
-  let AssistantSDK = globSync('../components/AssistantSDK/*.js')
   files = files.concat(components)
-  files = files.concat(AssistantSDK)
   console.log("Found: " + files.length + " files to minify\n")
 }
 
