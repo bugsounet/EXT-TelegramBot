@@ -50,7 +50,7 @@ module.exports = NodeHelper.create({
       if (this.adminChatId && this.config.useWelcomeMessage) {
         this.say(this.welcomeMsg())
       }
-    } else { // inform with EXT-Alert
+    } else {
       console.error("[TELBOT] [DATA] telegramAPIKey missing!")
     }
   },
@@ -400,7 +400,7 @@ module.exports = NodeHelper.create({
     }
 
     var r = await clearCache(this.config.telecastLife)
-    if (r instanceof Error) log (r)
+    if (r instanceof Error) log ("[MESSAGER]", r)
     var profilePhoto = await processProfilePhoto()
     if (profilePhoto) msg.from["_photo"] = String(profilePhoto)
     if (msg.hasOwnProperty("photo") && Array.isArray(msg.photo)) {
@@ -430,51 +430,51 @@ module.exports = NodeHelper.create({
     switch(r.type) {
       case 'VOICE_PATH':
         var data = this.lib.fs.readFileSync(r.path);
-        this.TB.sendVoice(chatId, data, r.option).catch((e) => {this.onError(this, e, r)})
+        this.TB.sendVoice(chatId, data, r.option).catch((e) => {this.onError(e, r)})
         break
       case 'VOICE_URL':
-        this.TB.sendVoice(chatId, r.path, r.option).catch((e) => {this.onError(this, e, r)})
+        this.TB.sendVoice(chatId, r.path, r.option).catch((e) => {this.onError(e, r)})
         break
       case 'VIDEO_PATH':
         var data = this.lib.fs.readFileSync(r.path);
-        this.TB.sendVideo(chatId, data, r.option).catch((e) => {this.onError(this, e, r)})
+        this.TB.sendVideo(chatId, data, r.option).catch((e) => {this.onError(e, r)})
         break;
       case 'VIDEO_URL':
-        this.TB.sendVideo(chatId, r.path, r.option).catch((e) => {this.onError(this, e, r)})
+        this.TB.sendVideo(chatId, r.path, r.option).catch((e) => {this.onError(e, r)})
         break
       case 'DOCUMENT_PATH':
         var data = this.lib.fs.readFileSync(r.path);
-        this.TB.sendDocument(chatId, data, r.option).catch((e) => {this.onError(this, e, r)})
+        this.TB.sendDocument(chatId, data, r.option).catch((e) => {this.onError(e, r)})
         break
       case 'DOCUMENT_URL':
-        this.TB.sendDocument(chatId, r.path, r.option).catch((e) => {this.onError(this, e, r)})
+        this.TB.sendDocument(chatId, r.path, r.option).catch((e) => {this.onError(e, r)})
         break
       case 'PHOTO_PATH':
         var data = this.lib.fs.readFileSync(r.path);
-        this.TB.sendPhoto(chatId, data, r.option).catch((e) => {this.onError(this, e, r)})
+        this.TB.sendPhoto(chatId, data, r.option).catch((e) => {this.onError(e, r)})
         break
       case 'PHOTO_URL':
-        this.TB.sendPhoto(chatId, r.path, r.option).catch((e) => {this.onError(this, e, r)})
+        this.TB.sendPhoto(chatId, r.path, r.option).catch((e) => {this.onError(e, r)})
         break
       case 'AUDIO_PATH':
         var data = this.lib.fs.readFileSync(r.path);
-        this.TB.sendAudio(chatId, data, r.option).catch((e) => {this.onError(this, e, r)})
+        this.TB.sendAudio(chatId, data, r.option).catch((e) => {this.onError(e, r)})
         break
       case 'AUDIO_URL':
-        this.TB.sendAudio(chatId, r.path, r.option).catch((e) => {this.onError(this, e, r)})
+        this.TB.sendAudio(chatId, r.path, r.option).catch((e) => {this.onError(e, r)})
         break
       case 'LOCATION':
-        this.TB.sendLocation(chatId, r.latitude, r.longitude, r.option).catch((e) => {this.onError(this, e, r)})
+        this.TB.sendLocation(chatId, r.latitude, r.longitude, r.option).catch((e) => {this.onError(e, r)})
         break
       case 'VENUE':
-        this.TB.sendVenue(chatId, r.latitude, r.longitude, r.title, r.address, r.option).catch((e) => {this.onError(this, e, r)})
+        this.TB.sendVenue(chatId, r.latitude, r.longitude, r.title, r.address, r.option).catch((e) => {this.onError(e, r)})
         break
       case 'CONTACT':
-        this.TB.sendContact(chatId, r.phoneNumber, r.firstName, r.option).catch((e) => {this.onError(this, e, r)})
+        this.TB.sendContact(chatId, r.phoneNumber, r.firstName, r.option).catch((e) => {this.onError(e, r)})
         break
       case 'TEXT':
       default:
-        this.TB.sendMessage(chatId, r.text, r.option).catch((e) => {this.onError(this, e, r)})
+        this.TB.sendMessage(chatId, r.text, r.option).catch((e) => {this.onError(e, r)})
         break
     }
   },
@@ -493,7 +493,7 @@ module.exports = NodeHelper.create({
               time: this.lib.moment().format('X')
             })
           })
-          .catch((e) => {this.onError(this, e, r)})
+          .catch((e) => {this.onError(e, r)})
         break
     }
   },
