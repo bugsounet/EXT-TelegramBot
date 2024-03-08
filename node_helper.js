@@ -29,11 +29,11 @@ module.exports = NodeHelper.create({
     }
     this.startTime = this.lib.moment();
     this.TBService = this.config.TelegramBotServiceAlerte;
-    
+
     if (typeof this.config.adminChatId !== "undefined") {
       this.adminChatId = this.config.adminChatId;
     }
-  
+
     if (typeof this.config.telegramAPIKey !== "undefined") {
       try {
         var option = Object.assign({ polling:true }, this.config.detailOption);
@@ -42,11 +42,11 @@ module.exports = NodeHelper.create({
       } catch (err) {
         return console.log("[TELBOT] [DATA]", err);
       }
-  
+
       this.TBPooling();
       console.log("[TELBOT] [DATA] Ready!");
       this.sendSocketNotification("INITIALIZED");
-  
+
       if (this.adminChatId && this.config.useWelcomeMessage) {
         this.say(this.welcomeMsg());
       }
@@ -102,7 +102,7 @@ module.exports = NodeHelper.create({
         for (const [name, configValues] of Object.entries(library)) {
           let libraryToLoad = name;
           let libraryName = configValues;
-  
+
           try {
             if (!this.lib[libraryName]) {
               this.lib[libraryName] = require(libraryToLoad);
@@ -333,7 +333,7 @@ module.exports = NodeHelper.create({
           for (var f of files) {
             var p = this.lib.path.join(cacheDir, f);
             var stat = this.lib.fs.statSync(p);
-            var now = new Date().getTime();
+            var now = new Date(Date.now()).getTime();
             var endTime = new Date(stat.ctime).getTime() + life;
             if (now > endTime) {
               log("[MESSAGER] Unlink old cache file:", p);

@@ -1,5 +1,5 @@
-/* Magic Mirror
- * Module: EXT-TelegramBot
+/*
+ * EXT-TelegramBot
  *
  * By eouia & @bugsounet
  */
