@@ -8,6 +8,10 @@
   text-align: left;
 }
 
+#EXT-TELBOT.inactive {
+  display:none;
+}
+
 #EXT-TELBOT_ANCHOR {
   width:100%;
   height:1px;
