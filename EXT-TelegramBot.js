@@ -89,16 +89,14 @@ Module.register("EXT-TelegramBot", {
   getDom () {
     var dom = document.createElement("div");
     dom.id = "EXT-TELBOT";
+    dom.classList.add("inactive");
     if ((isNaN(this.config.telecastContainer)) || this.config.telecastContainer < 200 || this.config.telecastContainer > 1000) {
       /** Wrong setting go to default **/
       this.config.telecastContainer = this.defaults.telecastContainer;
     }
     if (this.config.telecast) {
-      dom.setAttribute("style", `--container-width:${  this.config.telecastContainer  }px;`);
+      dom.setAttribute("style", `--container-width:${this.config.telecastContainer}px;`);
       dom.appendChild(this.getTelecastDom());
-    }
-    else {
-      dom.style.display = "none";
     }
     return dom;
   },
@@ -890,6 +888,10 @@ Module.register("EXT-TelegramBot", {
       this.chats.shift();
     }
     this.chats.push(msgObj);
+
+    var module = document.getElementById("EXT-TELBOT");
+    module.classList.remove("inactive");
+
     var dom = document.querySelector("#EXT-TELBOT .container");
 
     while(dom.childNodes.length >= this.config.telecastLimit + 1) {
