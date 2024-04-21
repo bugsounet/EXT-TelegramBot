@@ -6,6 +6,7 @@
   --photo-height: 200px;
   --bubble-after-top: 20px;
   text-align: left;
+  display: inline-block;
 }
 
 #EXT-TELBOT.inactive {
