@@ -231,11 +231,6 @@ Module.register("EXT-TelegramBot", {
         callback: "TELBOT_show"
       },
       {
-        command: "shutdown",
-        description: this.translate("EXT-TELBOT_SHUTDOWN"),
-        callback: "TELBOT_shutdown"
-      },
-      {
         command: "favor",
         callback: "TELBOT_favor",
         description: this.translate("EXT-TELBOT_FAVOR")
@@ -479,30 +474,6 @@ Module.register("EXT-TelegramBot", {
     }
 
     handler.reply("TEXT", text, { parse_mode:"Markdown" });
-  },
-
-  TELBOT_reboot (command, handler) {
-    var text = "";
-    if (handler.message.admin !== "admin") {
-      text = this.translate("EXT-TELBOT_ONLY_ADMIN");
-      handler.reply("TEXT", text, { parse_mode:"Markdown" });
-    } else {
-      text = this.translate("EXT-TELBOT_REBOOT_RESPONSE");
-      handler.reply("TEXT", text, { parse_mode:"Markdown" });
-      this.sendSocketNotification("REBOOT");
-    }
-  },
-
-  TELBOT_shutdown (command, handler) {
-    var text = "";
-    if (handler.message.admin !== "admin") {
-      text = this.translate("EXT-TELBOT_ONLY_ADMIN");
-      handler.reply("TEXT", text, { parse_mode:"Markdown" });
-    } else {
-      text = this.translate("EXT-TELBOT_SHUTDOWN_RESPONSE");
-      handler.reply("TEXT", text, { parse_mode:"Markdown" });
-      this.sendSocketNotification("SHUTDOWN");
-    }
   },
 
   TELBOT_mychatid (command, handler) {

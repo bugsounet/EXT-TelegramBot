@@ -1,7 +1,7 @@
 {
   "name": "EXT-TelegramBot",
-  "version": "2.5.2",
-  "rev": "240421",
+  "version": "2.5.3",
+  "rev": "240505",
   "description": "TelegramBot module for remote-controlling MagicMirror².",
   "main": "EXT-TelegramBot.js",
   "scripts": {
@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^8.57.0",
-    "@stylistic/eslint-plugin": "^1.7.2",
+    "@stylistic/eslint-plugin": "^1.8.0",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.29.1"
   }

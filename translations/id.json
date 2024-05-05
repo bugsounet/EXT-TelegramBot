@@ -26,10 +26,6 @@
   "EXT-TELBOT_ALLOWUSER_ERROR" : "Saya tidak dapat mendaftar user ini. Cek ejaannya atau belum menyertakan nama user.",
   "EXT-TELBOT_ALERT" : "Tampilkan pesan peringatan di `MagicMirror²`.",
   "EXT-TELBOT_ALERT_RESULT" : "Saya telah mengirimkan pesan Anda ke `MagicMirror²`.",
-  "EXT-TELBOT_REBOOT" : "Muat ulang `MagicMirror²`.",
-  "EXT-TELBOT_SHUTDOWN" : "Matikan `MagicMirror²`.",
-  "EXT-TELBOT_REBOOT_RESPONSE" : "Saya akan memuat ulang `MagicMirror²` sekarang.",
-  "EXT-TELBOT_SHUTDOWN_RESPONSE" : "Saya akan mematikan `MagicMirror²` sekarang.",
   "EXT-TELBOT_HIDDEN" : "tidak ditampilkan",
   "EXT-TELBOT_SHOWING" : "ditampilkan",
   "EXT-TELBOT_END" : "akhir"
