@@ -15,7 +15,6 @@ module.exports = NodeHelper.create({
     this.allowed = new Set();
     this.TB = null;
     this.counterInstance = 0;
-    this.TBService = true;
   },
 
   async initialize (config) {
@@ -28,7 +27,6 @@ module.exports = NodeHelper.create({
       return;
     }
     this.startTime = this.lib.moment();
-    this.TBService = this.config.TelegramBotServiceAlerte;
 
     if (typeof this.config.adminChatId !== "undefined") {
       this.adminChatId = this.config.adminChatId;
@@ -150,34 +148,18 @@ module.exports = NodeHelper.create({
           }
         };
       }
-      /* eslint-enable no-param-reassign */
-      console.log(`[TELBOT] [SERVICE] Error ${error.response.body.error_code}`, error.response.body.description);
-      var msg = {
-        type: "TEXT",
-        text: null,
-        option: {
-          disable_notification: false,
-          parse_mode: "Markdown"
-        }
-      };
+
+      console.error(`[TELBOT] [SERVICE] Error ${error.response.body.error_code}`);
+      console.error(`[TELBOT] [SERVICE] Description: ${error.response.body.description}`);
+
       switch (error.response.body.error_code) {
         case 409:
           if (this.counterInstance >= 3) {
-            if (this.TBService) {
-              msg.text = "*[WARNING] This instance of TelegramBot is now stopped!*";
-              msg.text += `\n\n${this.config.text["EXT-TELBOT_HELPER_SERVED"]}`;
-              this.say(msg, true);
-            } else {
-              console.log("[TELBOT] [SERVICE] stopPolling...");
-            }
+            console.warn("[TELBOT] [SERVICE] stopPolling...");
             this.TB.stopPolling();
           } else {
             this.counterInstance += 1;
-            if (this.TBService) {
-              msg.text = "*[WARNING] Make sure this only one TelegramBot instance is running!*",
-              msg.text += `\n\n${this.config.text["EXT-TELBOT_HELPER_SERVED"]}`;
-              this.say(msg, true);
-            }
+            console.warn("[TELBOT] [SERVICE] Make sure this only one TelegramBot instance is running!");
           }
           break;
         case "EFATAL":
@@ -188,23 +170,9 @@ module.exports = NodeHelper.create({
           setTimeout(() => {
             this.TB.startPolling();
             console.log("[TELBOT] [SERVICE] startPolling...");
-            if (this.TBService) {
-              msg.text = `*${  this.config.text["EXT-TELBOT_HELPER_WAKEUP"]  }*\n`;
-              msg.text += `Error: ${error.response.body.error_code}\n`;
-              msg.text += `Description: ${error.response.body.description}`;
-              msg.text += `\n\n${this.config.text["EXT-TELBOT_HELPER_SERVED"]}`;
-              this.say(msg, true);
-            }
           } , 1000 * 60);
           break;
         default:
-          if (this.TBService) {
-            msg.text = "*[WARNING] An error has occurred!*\n";
-            msg.text += `Error: ${error.response.body.error_code}\n`;
-            msg.text += `Description: ${error.response.body.description}`;
-            msg.text += `\n\n${this.config.text["EXT-TELBOT_HELPER_SERVED"]}`;
-            this.say(msg, true);
-          }
           break;
       }
     });
