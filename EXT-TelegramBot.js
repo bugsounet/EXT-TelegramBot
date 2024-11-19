@@ -4,6 +4,8 @@
  * By eouia & @bugsounet
  */
 
+/* global TelegramBotCommandRegister, TelegramBotMessageHandler */
+
 Module.register("EXT-TelegramBot", {
   defaults: {
     debug: false,
@@ -25,7 +27,7 @@ Module.register("EXT-TelegramBot", {
       }
     }
     */
-    favourites:["/commands", "/modules", "/hideall", "/showall"],
+    favourites: ["/commands", "/modules", "/hideall", "/showall"],
     telecast: null, // true or chat_id
     telecastLife: 1000 * 60 * 60 * 6,
     telecastLimit: 5,
@@ -41,11 +43,11 @@ Module.register("EXT-TelegramBot", {
     this.askSession = new Set();
     this.commonSession = new Map();
     this.config.text = {
-      "EXT-TELBOT_HELPER_ERROR" : this.translate("EXT-TELBOT_HELPER_ERROR"),
-      "EXT-TELBOT_HELPER_NOT_ALLOWED" : this.translate("EXT-TELBOT_HELPER_NOT_ALLOWED"),
-      "EXT-TELBOT_HELPER_RESTART" : this.translate("EXT-TELBOT_HELPER_RESTART"),
-      "EXT-TELBOT_HELPER_WAKEUP" : this.translate("EXT-TELBOT_HELPER_WAKEUP"),
-      "EXT-TELBOT_HELPER_MSG_COMING" : this.translate("EXT-TELBOT_HELPER_MSG_COMING"),
+      "EXT-TELBOT_HELPER_ERROR": this.translate("EXT-TELBOT_HELPER_ERROR"),
+      "EXT-TELBOT_HELPER_NOT_ALLOWED": this.translate("EXT-TELBOT_HELPER_NOT_ALLOWED"),
+      "EXT-TELBOT_HELPER_RESTART": this.translate("EXT-TELBOT_HELPER_RESTART"),
+      "EXT-TELBOT_HELPER_WAKEUP": this.translate("EXT-TELBOT_HELPER_WAKEUP"),
+      "EXT-TELBOT_HELPER_MSG_COMING": this.translate("EXT-TELBOT_HELPER_MSG_COMING"),
       "EXT-TELBOT_HELPER_SERVED": this.translate("EXT-TELBOT_HELP_SERVED", { module: "TelegramBot Service" })
     };
     this.config = configMerge({}, this.defaults, this.config);
@@ -55,6 +57,7 @@ Module.register("EXT-TelegramBot", {
     this.allowed = new Set(this.config.allowedUser);
     this.history = [];
     this.chats = [];
+
     /** audio part **/
     if (this.config.useSoundNotification) {
       this.sound = new Audio();
@@ -80,9 +83,7 @@ Module.register("EXT-TelegramBot", {
   },
 
   getScripts () {
-    return [
-      "/modules/EXT-TelegramBot/components/TELBOT_lib.js"
-    ];
+    return ["/modules/EXT-TelegramBot/components/TELBOT_lib.js"];
   },
 
   getDom () {
@@ -90,6 +91,7 @@ Module.register("EXT-TelegramBot", {
     dom.id = "EXT-TELBOT";
     dom.classList.add("inactive");
     if ((isNaN(this.config.telecastContainer)) || this.config.telecastContainer < 200 || this.config.telecastContainer > 1000) {
+
       /** Wrong setting go to default **/
       this.config.telecastContainer = this.defaults.telecastContainer;
     }
@@ -105,12 +107,12 @@ Module.register("EXT-TelegramBot", {
       case "INITIALIZED":
         if (this.isAlreadyInitialized) return;
         else this.isAlreadyInitialized = 1;
-        MM.getModules().enumerate((m)=>{
-          if ("EXT-TelegramBot" !== m.name && (m.name.startsWith("EXT-")||"MMM-GoogleAssistant" === m.name) && typeof m.EXT_TELBOTCommands === "function"){
-            var tc=m.EXT_TELBOTCommands(new TelegramBotCommandRegister(m,this.registerCommand.bind(this)));
+        MM.getModules().enumerate((m) => {
+          if ("EXT-TelegramBot" !== m.name && (m.name.startsWith("EXT-") || "MMM-GoogleAssistant" === m.name) && typeof m.EXT_TELBOTCommands === "function") {
+            var tc = m.EXT_TELBOTCommands(new TelegramBotCommandRegister(m, this.registerCommand.bind(this)));
             if (Array.isArray(tc)) {
-              tc.forEach((c)=>{
-                this.registerCommand(m,c);
+              tc.forEach((c) => {
+                this.registerCommand(m, c);
               });
             }
           }
@@ -127,14 +129,14 @@ Module.register("EXT-TelegramBot", {
         this.TELBOT_screenshot_result(payload.session, payload);
         break;
       case "ANSWER":
-        this.askSession.forEach((s)=> {
+        this.askSession.forEach((s) => {
           if (s.session_id === payload.sessionId) {
             var callbacks = {
               reply: this.reply.bind(this),
               ask: this.ask.bind(this),
               say: this.say.bind(this)
             };
-            var handler = new TelegramBotMessageHandler( payload, payload.text, callbacks );
+            var handler = new TelegramBotMessageHandler(payload, payload.text, callbacks);
             s.callback("ANSWER_FOR_ASK", handler);
             this.askSession.delete(s);
             return;
@@ -148,7 +150,7 @@ Module.register("EXT-TelegramBot", {
   },
 
   notificationReceived (notification, payload, sender) {
-    switch(notification) {
+    switch (notification) {
       case "GA_READY":
         if (sender.name === "MMM-GoogleAssistant") {
           if (this.isAlreadyInitialized) return;
@@ -157,16 +159,17 @@ Module.register("EXT-TelegramBot", {
         }
         break;
       case "EXT_TELBOT-TELL_ADMIN":
+        var r = null;
         if (typeof payload === "string") {
-          var r = {
-            chat_id : null,
-            type : "TEXT",
-            text : `${payload}\n${this.translate("EXT-TELBOT_HELP_SERVED" , { module: sender.name })}`,
-            option : { parse_mode:"Markdown" }
+          r = {
+            chat_id: null,
+            type: "TEXT",
+            text: `${payload}\n${this.translate("EXT-TELBOT_HELP_SERVED", { module: sender.name })}`,
+            option: { parse_mode: "Markdown" }
           };
           this.adminSay(r);
         } else if (typeof payload === "object") {
-          var r = Object.assign({}, payload, { chat_id:null });
+          r = Object.assign({}, payload, { chat_id: null });
           this.adminSay(r);
         }
         break;
@@ -193,21 +196,21 @@ Module.register("EXT-TelegramBot", {
         callback: "TELBOT_list_modules"
       },
       {
-        command : "mychatid",
+        command: "mychatid",
         description: this.translate("EXT-TELBOT_MYCHATID"),
         callback: "TELBOT_mychatid"
       },
       {
-        command : "allowed",
+        command: "allowed",
         description: this.translate("EXT-TELBOT_ALLOWED"),
         callback: "TELBOT_allowed"
       },
       {
-        command : "allowuser",
+        command: "allowuser",
         description: this.translate("EXT-TELBOT_ALLOWUSER"),
         callback: "TELBOT_allowuser",
-        args_pattern : [/^[^\s]+/],
-        args_mapping : ["username"]
+        args_pattern: [/^[^\s]+/],
+        args_mapping: ["username"]
       },
       {
         command: "hideall",
@@ -274,7 +277,7 @@ Module.register("EXT-TelegramBot", {
   TELBOT_clean (command, handler) {
     if (!this.config.telecast) {
       var text = this.translate("EXT-TELBOT_TELECAST_FALSE");
-      handler.reply("TEXT", text, { parse_mode:"Markdown" });
+      handler.reply("TEXT", text, { parse_mode: "Markdown" });
       return;
     }
     this.chats = [];
@@ -285,7 +288,7 @@ Module.register("EXT-TelegramBot", {
   TELBOT_telecast (command, handler) {
     if (!this.config.telecast) {
       var text = this.translate("EXT-TELBOT_TELECAST_FALSE");
-      handler.reply("TEXT", text, { parse_mode:"Markdown" });
+      handler.reply("TEXT", text, { parse_mode: "Markdown" });
       return;
     }
     handler.message.text = handler.args;
@@ -294,7 +297,7 @@ Module.register("EXT-TelegramBot", {
   },
 
   TELBOT_screenshot (command, handler) {
-    var sessionId = `${Date.now()  }_${  this.commonSession.size}`;
+    var sessionId = `${Date.now()}_${this.commonSession.size}`;
     this.commonSession.set(sessionId, handler);
     this.sendSocketNotification("SCREENSHOT", { session: sessionId });
   },
@@ -308,16 +311,16 @@ Module.register("EXT-TelegramBot", {
       handler.reply("PHOTO_PATH", ret.path, { caption: text });
       this.sendNotification("EXT_GPHOTOPHOTOS-UPLOAD", ret.path);
     } else {
-      text = `${this.translate("EXT-TELBOT_SCREENSHOT_RESULT_ERROR")  }\n${  ret.result}`;
-      handler.reply("TEXT", text, { parse_mode:"Markdown" });
+      text = `${this.translate("EXT-TELBOT_SCREENSHOT_RESULT_ERROR")}\n${ret.result}`;
+      handler.reply("TEXT", text, { parse_mode: "Markdown" });
     }
   },
 
   TELBOT_noti (command, handler) {
-    var error = null;
+    var text = "";
     if (!handler.args || !handler.args[0]) {
-      var text = this.translate("EXT-TELBOT_NOTIFICATION_FAIL");
-      handler.reply("TEXT", text, { parse_mode:"Markdown" });
+      text = this.translate("EXT-TELBOT_NOTIFICATION_FAIL");
+      handler.reply("TEXT", text, { parse_mode: "Markdown" });
       return;
     }
     var noti = handler.args[0][1];
@@ -326,15 +329,15 @@ Module.register("EXT-TelegramBot", {
     if (pstr.indexOf("{") + pstr.indexOf("[") !== -2) {
       try {
         payload = JSON.parse(pstr);
-      } catch (e) {
-        var text = this.translate("EXT-TELBOT_NOTIFICATION_PAYLOAD_FAIL");
-        text += "\n" + `\`${  payload  }\``;
-        handler.reply("TEXT", text, { parse_mode:"Markdown" });
+      } catch {
+        text = this.translate("EXT-TELBOT_NOTIFICATION_PAYLOAD_FAIL");
+        text += "\n" + `\`${payload}\``;
+        handler.reply("TEXT", text, { parse_mode: "Markdown" });
         return;
       }
     }
     this.sendNotification(noti, payload);
-    handler.reply("TEXT", this.translate("EXT-TELBOT_NOTIFICATION_RESULT"), { parse_mode:"Markdown" });
+    handler.reply("TEXT", this.translate("EXT-TELBOT_NOTIFICATION_RESULT"), { parse_mode: "Markdown" });
   },
 
   TELBOT_favor (command, handler) {
@@ -345,7 +348,7 @@ Module.register("EXT-TelegramBot", {
         one_time_keyboard: true,
         keyboard: [this.config.favourites]
       },
-      parse_mode:"Markdown"
+      parse_mode: "Markdown"
     });
   },
 
@@ -357,7 +360,7 @@ Module.register("EXT-TelegramBot", {
         one_time_keyboard: true,
         keyboard: [this.module.history]
       },
-      parse_mode:"Markdown"
+      parse_mode: "Markdown"
     });
   },
 
@@ -365,38 +368,38 @@ Module.register("EXT-TelegramBot", {
     var text = this.translate("EXT-TELBOT_RESET_KEYBOARD_RESULT");
     handler.reply("TEXT", text, {
       reply_markup: {
-        remove_keyboard:true
+        remove_keyboard: true
       },
-      parse_mode:"Markdown"
+      parse_mode: "Markdown"
     });
   },
 
   TELBOT_hideall (command, handler) {
     var text = this.translate("EXT-TELBOT_HIDEALL_RESULT");
-    MM.getModules().enumerate((m)=> {
-      m.hide(500, { lockString:"TB_LOCK" });
+    MM.getModules().enumerate((m) => {
+      m.hide(500, { lockString: "TB_LOCK" });
     });
-    handler.reply("TEXT", text, { parse_mode:"Markdown" });
+    handler.reply("TEXT", text, { parse_mode: "Markdown" });
   },
 
   TELBOT_showall (command, handler) {
     var text = this.translate("EXT-TELBOT_SHOWALL_RESULT");
-    MM.getModules().enumerate((m)=> {
-      m.show(500, { lockString:"TB_LOCK" });
+    MM.getModules().enumerate((m) => {
+      m.show(500, { lockString: "TB_LOCK" });
     });
-    handler.reply("TEXT", text, { parse_mode:"Markdown" });
+    handler.reply("TEXT", text, { parse_mode: "Markdown" });
   },
 
   TELBOT_hide (command, handler) {
     var found = false;
     var unlock = false;
     if (handler.args) {
-      MM.getModules().enumerate((m)=> {
+      MM.getModules().enumerate((m) => {
         if (m.name === handler.args) {
           found = true;
           if (m.hidden) return handler.reply("TEXT", handler.args + this.translate("EXT-TELBOT_HIDE_ALREADY"));
           if (m.lockStrings.length > 0) {
-            m.lockStrings.forEach( (lock) => {
+            m.lockStrings.forEach((lock) => {
               if (lock === "TB_LOCK") {
                 m.hide(500, { lockString: "TB_LOCK" });
                 if (m.lockStrings.length === 0) {
@@ -421,12 +424,12 @@ Module.register("EXT-TelegramBot", {
     var found = false;
     var unlock = false;
     if (handler.args) {
-      MM.getModules().enumerate((m)=> {
+      MM.getModules().enumerate((m) => {
         if (m.name === handler.args) {
           found = true;
           if (!m.hidden) return handler.reply("TEXT", handler.args + this.translate("EXT-TELBOT_SHOW_ALREADY"));
           if (m.lockStrings.length > 0) {
-            m.lockStrings.forEach( (lock) => {
+            m.lockStrings.forEach((lock) => {
               if (lock === "TB_LOCK") {
                 m.show(500, { lockString: "TB_LOCK" });
                 if (m.lockStrings.length === 0) {
@@ -451,12 +454,12 @@ Module.register("EXT-TelegramBot", {
     var text = "";
     for (var username of this.allowed) {
       if (text === "") {
-        text += `\`${  username  }\``;
+        text += `\`${username}\``;
       } else {
-        text += `, \`${  username  }\``;
+        text += `, \`${username}\``;
       }
     }
-    handler.reply("TEXT", text, { parse_mode:"Markdown" });
+    handler.reply("TEXT", text, { parse_mode: "Markdown" });
   },
 
   TELBOT_allowuser (command, handler) {
@@ -472,13 +475,13 @@ Module.register("EXT-TelegramBot", {
       text = this.translate("EXT-TELBOT_ALLOWUSER_ERROR");
     }
 
-    handler.reply("TEXT", text, { parse_mode:"Markdown" });
+    handler.reply("TEXT", text, { parse_mode: "Markdown" });
   },
 
   TELBOT_mychatid (command, handler) {
     //handler.tell, handler.reply, handler.ask
-    var text = this.translate("EXT-TELBOT_MYCHATID_RESULT", { chatid:handler.message.chat.id });
-    handler.reply("TEXT", text, { parse_mode:"Markdown" });
+    var text = this.translate("EXT-TELBOT_MYCHATID_RESULT", { chatid: handler.message.chat.id });
+    handler.reply("TEXT", text, { parse_mode: "Markdown" });
   },
 
   TELBOT_list_modules (command, handler) {
@@ -486,43 +489,45 @@ Module.register("EXT-TelegramBot", {
     var hidden = this.translate("EXT-TELBOT_HIDDEN");
     var showing = this.translate("EXT-TELBOT_SHOWING");
     MM.getModules().enumerate((m) => {
-      text += `\`${  m.name  }\` _`;
+      text += `\`${m.name}\` _`;
       text += ((m.hidden) ? hidden : showing);
       text += "_\n";
     });
     if (!text) {
       text = this.translate("EXT-TELBOT_MODULES_ERROR");
     }
-    handler.reply("TEXT", text, { parse_mode:"Markdown" });
+    handler.reply("TEXT", text, { parse_mode: "Markdown" });
   },
 
+  /* eslint-disable no-useless-escape */
   TELBOT_list_commands (command, handler) {
     var text = "";
     this.commands.forEach((c) => {
       var name = c.command;
       var description = (c.description) ? c.description : "";
       var bits = description.split(/[\.\n]/);
-      text += `*${  name  }* \- _${  bits[0]  }_\n`;
+      text += `*${name}* \- _${bits[0]}_\n`;
     });
     if (!text) {
       text = this.translate("EXT-TELBOT_COMMANDS_ERROR");
     }
-    handler.reply("TEXT", text, { parse_mode:"Markdown" });
+    handler.reply("TEXT", text, { parse_mode: "Markdown" });
   },
+  /* eslint-enable no-useless-escape */
 
   TELBOT_help (command, handler) {
     var target;
     var text = "";
     if (handler.args !== null) {
       target = handler.args["command"];
-      this.commands.forEach((c)=>{
+      this.commands.forEach((c) => {
         if (c.command === target) {
-          text += `\`/${  c.command  }\`\n`;
+          text += `\`/${c.command}\`\n`;
           text += (c.description) ? c.description : "";
           text += "\n";
           text += (
             (c.moduleName)
-              ? (this.translate("EXT-TELBOT_HELP_SERVED", { module:c.moduleName }))
+              ? (this.translate("EXT-TELBOT_HELP_SERVED", { module: c.moduleName }))
               : ""
           );
           text += "\n";
@@ -532,40 +537,35 @@ Module.register("EXT-TelegramBot", {
     if (!text) {
       text = this.translate("EXT-TELBOT_HELP_HELP");
     }
-    var result = handler.reply("TEXT", text, { parse_mode:"Markdown" });
+    handler.reply("TEXT", text, { parse_mode: "Markdown" });
   },
 
   registerCommand (module, commandObj) {
     var c = commandObj;
     var command = c.command;
-    var moduleName = module.name;
     var callback = ((c.callback) ? (c.callback) : "notificationReceived");
     if (typeof callback !== "function") {
       if (typeof module[callback] !== "function") return false;
     }
-    var isNameUsed = 1;
     var idx = 0;
-    for (var j in this.commands) {
+    this.commands.forEach(() => {
       var sameCommand = this.commands.filter(function (com) {
         if (com.command === command) return com;
       });
       if (sameCommand.length > 0) {
-        isNameUsed = 1;
         command = c.command + idx;
         idx++;
-      } else {
-        isNameUsed = 0;
       }
-    }
+    });
     var cObj = {
-      command : command,
-      execute : c.command,
-      moduleName : module.name,
-      module : module,
+      command: command,
+      execute: c.command,
+      moduleName: module.name,
+      module: module,
       description: c.description,
-      callback : callback,
-      argsPattern : c.args_pattern,
-      argsMapping : c.args_mapping
+      callback: callback,
+      argsPattern: c.args_pattern,
+      argsMapping: c.args_mapping
     };
     this.commands.push(cObj);
     return true;
@@ -581,20 +581,21 @@ Module.register("EXT-TelegramBot", {
       return new TelegramBotMessageHandler(msg, args, callbacks);
     };
     var args = null;
-    var response = null;
-    var chatId = msg.chat.id;
+    var handler = null;
+    var text = null;
     if (typeof msg.text === "undefined") return;
     var msgText = msg.text;
     if (msgText.indexOf("/") !== 0) return;
+    /* eslint-disable-next-line */
     var matched = msgText.match(new RegExp("^\/([0-9a-zA-Z-_]+)\s?(.*)$"));
     var matchedCommands = [];
     if (matched) {
-      matchedCommands = this.commands.filter((c)=>{
+      matchedCommands = this.commands.filter((c) => {
         if (c.command.indexOf(matched[1]) === 0) return true;
         return false;
       });
       if (matchedCommands.length > 1) {
-        var exact = matchedCommands.filter((c)=>{
+        var exact = matchedCommands.filter((c) => {
           if (c.command === matched[1]) return true;
           return false;
         });
@@ -610,9 +611,9 @@ Module.register("EXT-TelegramBot", {
         var allowedUser = this.config.commandAllowed[c.command];
         if (Array.isArray(allowedUser) && allowedUser.length > 0) {
           if (!allowedUser.includes(msg.from.username)) {
-            var handler = createHandler(msg, null);
-            var text = this.translate("EXT-TELBOT_NOT_ALLOWED_COMMAND");
-            handler.reply("TEXT", text, { parse_mode:"Markdown" });
+            handler = createHandler(msg, null);
+            text = this.translate("EXT-TELBOT_NOT_ALLOWED_COMMAND");
+            handler.reply("TEXT", text, { parse_mode: "Markdown" });
             return;
           }
         }
@@ -623,7 +624,7 @@ Module.register("EXT-TelegramBot", {
       } else {
         if (c.argsPattern && Array.isArray(c.argsPattern)) {
           args = [];
-          for(var j = 0; j < c.argsPattern.length; j++) {
+          for (var j = 0; j < c.argsPattern.length; j++) {
             var p = c.argsPattern[j];
             if (p instanceof RegExp) {
               //do nothing.
@@ -665,7 +666,7 @@ Module.register("EXT-TelegramBot", {
         msg.admin = "admin";
       }
       if (c.callback !== "notificationReceived") {
-        var handler = createHandler(msg, args);
+        handler = createHandler(msg, args);
         if (typeof c.callback === "function") {
           c.callback(c.execute, handler, c.module);
         } else {
@@ -677,20 +678,20 @@ Module.register("EXT-TelegramBot", {
         c.module[c.callback](c.execute, args);
       }
       this.history.push(msg.text);
-      while(this.history.length > 5) {
+      while (this.history.length > 5) {
         this.history.shift();
       }
     } else {
       //0 or multi
-      var handler = createHandler(msg, null);
-      var text = this.translate("EXT-TELBOT_NOT_REGISTERED_COMMAND");
+      handler = createHandler(msg, null);
+      text = this.translate("EXT-TELBOT_NOT_REGISTERED_COMMAND");
       if (matchedCommands.length > 1) {
         text = this.translate("EXT-TELBOT_FOUND_SEVERAL_COMMANDS");
         for (var tc of matchedCommands) {
           text += `*/${tc.command}*\n`;
         }
       }
-      handler.reply("TEXT", text, { parse_mode:"Markdown" });
+      handler.reply("TEXT", text, { parse_mode: "Markdown" });
     }
   },
 
@@ -701,16 +702,16 @@ Module.register("EXT-TelegramBot", {
   ask (response, sessionId, callback) {
     if (sessionId === null) return false;
     var session = {
-      session_id : sessionId,
-      callback:callback,
-      time:moment().format("X")
+      session_id: sessionId,
+      callback: callback,
+      time: moment().format("X")
     };
     this.askSession.add(session);
     response.askSession = session;
     this.sendSocketNotification("ASK", response);
   },
 
-  say (response, adminMode=false) {
+  say (response, adminMode = false) {
     if (adminMode) this.sendSocketNotification("SAY_ADMIN", response);
     else this.sendSocketNotification("SAY", response);
   },
@@ -721,7 +722,7 @@ Module.register("EXT-TelegramBot", {
 
   toRegExp (exp) {
     var lastSlash = exp.lastIndexOf("/");
-    if(lastSlash > 1) {
+    if (lastSlash > 1) {
       var restoredRegex = new RegExp(
         exp.slice(1, lastSlash),
         exp.slice(lastSlash + 1)
@@ -746,8 +747,8 @@ Module.register("EXT-TelegramBot", {
   },
 
   appendTelecastChat (parent, c) {
-    const getImageURL = (id)=>{
-      return `/modules/EXT-TelegramBot/cache/${  id}`;
+    const getImageURL = (id) => {
+      return `/modules/EXT-TelegramBot/cache/${id}`;
     };
     var anchor = parent.querySelector("#EXT-TELBOT_ANCHOR");
     var chat = document.createElement("div");
@@ -791,7 +792,7 @@ Module.register("EXT-TelegramBot", {
       var photoImage = document.createElement("img");
       photoImage.classList.add("photoImage");
       photoImage.src = getImageURL(c.chat._photo);
-      photoImage.onload = ()=>{
+      photoImage.onload = () => {
         anchor.scrollIntoView(false);
       };
       imageContainer.appendChild(photoImage);
@@ -807,7 +808,7 @@ Module.register("EXT-TelegramBot", {
       video.addEventListener("loadeddata", () => {
         anchor.scrollIntoView(false);
       }, false);
-      video.addEventListener("error", (e) => {
+      video.addEventListener("error", () => {
         delete c.chat._video;
         c.text = "Video Error!";
         this.updateDom();
@@ -823,28 +824,28 @@ Module.register("EXT-TelegramBot", {
     }
 
     if (c.chat._audio) {
-      var text = document.createElement("div");
-      text.classList.add("text");
-      var audio = new Audio(getImageURL(c.chat._audio));
-      audio.volume = 0.6;
-      audio.play();
-      text.innerHTML = c.title ? c.title: (c.caption ? c.caption :"Audio");
-      bubble.appendChild(text);
+      var audio = document.createElement("div");
+      audio.classList.add("text");
+      var audioSrc = new Audio(getImageURL(c.chat._audio));
+      audioSrc.volume = 0.6;
+      audioSrc.play();
+      audio.innerHTML = c.title ? c.title : (c.caption ? c.caption : "Audio");
+      bubble.appendChild(audio);
     }
 
     if (c.chat._voice) {
-      var text = document.createElement("div");
-      text.classList.add("text");
-      var voice = new Audio(getImageURL(c.chat._voice));
-      voice.volume = 1.0;
-      voice.play();
-      text.innerHTML = "Voice";
-      bubble.appendChild(text);
+      var voice = document.createElement("div");
+      voice.classList.add("text");
+      var voiceSrc = new Audio(getImageURL(c.chat._voice));
+      voiceSrc.volume = 1.0;
+      voiceSrc.play();
+      voice.innerHTML = "Voice";
+      bubble.appendChild(voice);
     }
 
     message.appendChild(bubble);
     chat.appendChild(message);
-    chat.timer = setTimeout(()=>{
+    chat.timer = setTimeout(() => {
       parent.removeChild(chat);
     }, this.config.telecastLife);
     parent.insertBefore(chat, anchor);
@@ -864,12 +865,11 @@ Module.register("EXT-TelegramBot", {
 
     var dom = document.querySelector("#EXT-TELBOT .container");
 
-    while(dom.childNodes.length >= this.config.telecastLimit + 1) {
+    while (dom.childNodes.length >= this.config.telecastLimit + 1) {
       if (dom.firstChild.id !== "EXT-TELBOT_ANCHOR") dom.removeChild(dom.firstChild);
     }
     this.appendTelecastChat(dom, msgObj);
     this.sendNotification("EXT-TELBOT_TELECAST", msgObj);
-    var dom = document.querySelector("#EXT-TELBOT .container");
     var anchor = document.querySelector("#EXT-TELBOT_ANCHOR");
     anchor.scrollIntoView(false);
   }
