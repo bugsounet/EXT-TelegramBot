@@ -9,6 +9,7 @@ TelegramBotCommandRegister.prototype.add = function (commandObj) {
 
 /** remove ExtraChars for telegramBot markdown **/
 /* eslint-disable no-param-reassign */
+/* eslint-disable-next-line */
 function TelegramBotExtraChars (str) {
 
   /** special markdown for Telegram **/
@@ -84,6 +85,7 @@ class TLGMessage {
     }
   }
 
+  /*eslint-disable no-unreachable */
   static createMessage (type, reqs, opts) {
     switch (type) {
       case "CONTACT":
@@ -131,6 +133,7 @@ class TLGMessage {
         break;
     }
   }
+  /*eslint-enable no-unreachable */
 }
 
 class TLGMediaMessage extends TLGMessage {
