@@ -8,16 +8,18 @@ TelegramBotCommandRegister.prototype.add = function (commandObj) {
 };
 
 /** remove ExtraChars for telegramBot markdown **/
+/* eslint-disable no-param-reassign */
 /* eslint-disable-next-line */
 function TelegramBotExtraChars (str) {
-  var result = str;
-  // special markdown for Telegram
-  result = result.replace(new RegExp("_", "g"), "\\_");
-  result = result.replace(new RegExp("\\*", "g"), "\\*");
-  result = result.replace(new RegExp("\\[", "g"), "\\[");
-  result = result.replace(new RegExp("`", "g"), "\\`");
-  return result;
+
+  /** special markdown for Telegram **/
+  str = str.replace(new RegExp("_", "g"), "\\_"); //
+  str = str.replace(new RegExp("\\*", "g"), "\\*");
+  str = str.replace(new RegExp("\\[", "g"), "\\[");
+  str = str.replace(new RegExp("`", "g"), "\\`");
+  return str;
 }
+/* eslint-enable no-param-reassign */
 
 function TelegramBotMessageHandler (message, args, callbacks) {
   this.args = args;
@@ -83,53 +85,55 @@ class TLGMessage {
     }
   }
 
+  /*eslint-disable no-unreachable */
   static createMessage (type, reqs, opts) {
     switch (type) {
       case "CONTACT":
-        new TLGContactMessage(reqs, opts);
+        return new TLGContactMessage(reqs, opts);
         break;
       case "LOCATION":
-        new TLGLocationMessage(reqs, opts);
+        return new TLGLocationMessage(reqs, opts);
         break;
       case "VENUE":
-        new TLGVenueMessage(reqs, opts);
+        return new TLGVenueMessage(reqs, opts);
         break;
       case "VOICE_URL":
-        new TLGVoiceUrlMessage(reqs, opts);
+        return new TLGVoiceUrlMessage(reqs, opts);
         break;
       case "VOICE_PATH":
-        new TLGVoicePathMessage(reqs, opts);
+        return new TLGVoicePathMessage(reqs, opts);
         break;
       case "VIDEO_URL":
-        new TLGVideoUrlMessage(reqs, opts);
+        return new TLGVideoUrlMessage(reqs, opts);
         break;
       case "VIDEO_PATH":
-        new TLGVideoPathMessage(reqs, opts);
+        return new TLGVideoPathMessage(reqs, opts);
         break;
       case "DOCUMENT_URL":
-        new TLGDocumentUrlMessage(reqs, opts);
+        return new TLGDocumentUrlMessage(reqs, opts);
         break;
       case "DOCUMENT_PATH":
-        new TLGDocumentPathMessage(reqs, opts);
+        return new TLGDocumentPathMessage(reqs, opts);
         break;
       case "PHOTO_URL":
-        new TLGPhotoUrlMessage(reqs, opts);
+        return new TLGPhotoUrlMessage(reqs, opts);
         break;
       case "PHOTO_PATH":
-        new TLGPhotoPathMessage(reqs, opts);
+        return new TLGPhotoPathMessage(reqs, opts);
         break;
       case "AUDIO_URL":
-        new TLGAudioUrlMessage(reqs, opts);
+        return new TLGAudioUrlMessage(reqs, opts);
         break;
       case "AUDIO_PATH":
-        new TLGAudioPathMessage(reqs, opts);
+        return new TLGAudioPathMessage(reqs, opts);
         break;
       case "TEXT":
       default:
-        new TLGTextMessage(reqs, opts);
+        return new TLGTextMessage(reqs, opts);
         break;
     }
   }
+  /*eslint-enable no-unreachable */
 }
 
 class TLGMediaMessage extends TLGMessage {
