@@ -11,7 +11,7 @@ TelegramBot plugin<br>
 
 ![](https://raw.githubusercontent.com/bugsounet/EXT-TelegramBot/dev/screenshot/sc_overflowed.png)
 
-# Guide, installation, updating
+# Guide, installation and update
 
 See the [Wiki](http://wiki.bugsounet.fr/en/EXT-TelegramBot)
 
