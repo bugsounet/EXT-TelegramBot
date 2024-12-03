@@ -30,7 +30,7 @@
     "lint:fix": "eslint . --config eslint.config.mjs --fix",
     "postinstall": "installer/postinstall.sh -m",
     "preinstall": "installer/preinstall.sh -d 'scrot grim'",
-    "reset": "git reset --hard",
+    "reset": "rm -f *.js && rm -rf components && git reset --hard",
     "test": "npm run lint",
     "test:minify": "cd installer && node minify.js",
     "update": "installer/update.sh"
