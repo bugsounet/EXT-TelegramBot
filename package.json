@@ -5,7 +5,7 @@
   "description": "TelegramBot module for remote-controlling MagicMirror².",
   "main": "EXT-TelegramBot.js",
   "scripts": {
-    "preinstall": "installer/preinstall.sh -d 'scrot'",
+    "preinstall": "installer/preinstall.sh -d 'scrot grim'",
     "postinstall": "installer/postinstall.sh -m",
     "update": "installer/update.sh",
     "reset": "git reset --hard",

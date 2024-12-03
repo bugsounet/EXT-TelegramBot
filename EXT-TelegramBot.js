@@ -4,7 +4,7 @@
  * By eouia & @bugsounet
  */
 
-/* global TelegramBotCommandRegister, TelegramBotMessageHandler */
+/* global TelegramBotCommandRegister, TelegramBotMessageHandler TelegramBotExtraChars */
 
 Module.register("EXT-TelegramBot", {
   defaults: {
@@ -33,7 +33,8 @@ Module.register("EXT-TelegramBot", {
     telecastLimit: 5,
     telecastHideOverflow: true,
     telecastContainer: 300,
-    dateFormat: "DD-MM-YYYY HH:mm:ss"
+    dateFormat: "DD-MM-YYYY HH:mm:ss",
+    screenshotTool: "grim"
   },
 
   start () {
@@ -312,7 +313,7 @@ Module.register("EXT-TelegramBot", {
       this.sendNotification("EXT_GPHOTOPHOTOS-UPLOAD", ret.path);
     } else {
       text = `${this.translate("EXT-TELBOT_SCREENSHOT_RESULT_ERROR")}\n${ret.result}`;
-      handler.reply("TEXT", text, { parse_mode: "Markdown" });
+      handler.reply("TEXT", TelegramBotExtraChars(text), { parse_mode: "Markdown" });
     }
   },
 
