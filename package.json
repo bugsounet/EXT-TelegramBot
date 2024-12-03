@@ -10,10 +10,12 @@
     "update": "installer/update.sh",
     "reset": "git reset --hard",
     "clean": "rm -rf node_modules package-lock.json",
-    "lint": "eslint *.js installer/*.js components/*.js --config eslint.config.js",
-    "lint:fix": "eslint *.js installer/*.js components/*.js --config eslint.config.js --fix",
+    "lint": "eslint . --config eslint.config.mjs",
+    "lint:fix": "eslint . --config eslint.config.mjs --fix",
     "test": "npm run lint",
-    "test:minify": "cd installer && node minify.js"
+    "test:minify": "cd installer && node minify.js",
+    "dev": "cd installer && node dev.js",
+    "dev:src": "cd installer && node src.js"
   },
   "keywords": [
     "MMM-GoogleAssistant",
