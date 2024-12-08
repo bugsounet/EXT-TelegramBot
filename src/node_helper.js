@@ -185,7 +185,18 @@ module.exports = NodeHelper.create({
     var timestamp = this.timeStamp();
     var filePath = `${shotDir}/screenshot_${timestamp}.png`;
     var t = new this.lib.moment();
-    var command = `scrot -o -q 100 ${filePath}`;
+    var command = "";
+    switch (this.config.screenshotTool) {
+      case "grim":
+        command = `grim ${filePath}`;
+        break;
+      case "scrot":
+        command = `scrot -o -q 100 ${filePath}`;
+        break;
+      default:
+        command = "screenshotTool error";
+        break;
+    }
     var retObj = {
       session: sessionId,
       timestamp: t.format(this.config.dateFormat),
@@ -210,7 +221,7 @@ module.exports = NodeHelper.create({
       if (error) {
         retObj.result = error.message;
         result = error.message;
-        log("[SCREENSHOT] SCREENSHOT RESULT:", error.message);
+        log("[SCREENSHOT] SCREENSHOT RESULT:", result);
       } else {
         retObj.status = true;
         log("[SCREENSHOT] SCREENSHOT RESULT: Ok");
